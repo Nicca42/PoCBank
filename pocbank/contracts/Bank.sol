@@ -11,12 +11,11 @@ contract Bank {
         address bankAccount;
         AccountType typeOfAccount;
     }
-    mapping (address => AccountDetails) private userWallets;
-    mapping (address => address) userWalletsToBankAccounts;
     
+    mapping (address => AccountDetails) private userWallets;
     mapping(address => bool) userWalletLocks;
     
-    event LogEvent(string _description, uint _choice, address _thisAddress);
+    event UserCreated(address[] _owners, AccountType _accountType, uint _initialBalance);
     
     /**
         @param userWallet : the address of the new users wallet.
@@ -25,10 +24,10 @@ contract Bank {
     */
     modifier isLocked(address userWallet) {
         require(userWalletLocks[userWallet] != true);
-        if(userWalletsToBankAccounts[userWallet] != 0x0){
+        if(userWallets[userWallet].bankAccount != 0x0){
             if(userWallets[userWallet].typeOfAccount == AccountType.access){
                 //access account 
-                 AccessAccount isLockedAccount = AccessAccount(userWalletsToBankAccounts[userWallet]);
+                 AccessAccount isLockedAccount = AccessAccount(userWallets[userWallet].bankAccount);
                  require(isLockedAccount.isLocked() != true);
             } else if(userWallets[userWallet].typeOfAccount == AccountType.delay){
                 //delay, 30 days, account
@@ -47,6 +46,15 @@ contract Bank {
         public
     {
         owner = msg.sender;
+    }
+    
+    function getBankAccountAddress(address _userWallet)
+        public
+        view
+        returns(address)
+    {
+        require(msg.sender == owner);
+        return userWallets[_userWallet].bankAccount;
     }
     
     /**
@@ -100,20 +108,20 @@ contract Bank {
                 bankAccount: newAccountAddress,
                 typeOfAccount: AccountType.access
             });
-            userWalletsToBankAccounts[msg.sender] = newAccountAddress;
+            userWallets[msg.sender].bankAccount = newAccountAddress;
+            
+            emit  UserCreated(temp, AccountType.access, balance);
+            
             return newAccountAddress;
             
         } else if(_chosenType == 2){
         //     //delay, 30 days, account 
-            LogEvent("Chosen type is delay", 3, this);
             
         } else if(_chosenType == 3){
         //     //trust account
-            LogEvent("Chosen type is trust", 3, this);
             
         } else {
         //     //no account was identified
-            LogEvent("No type was detected", 3, this);
             
         }
         // //TODO: lock users wallet in a function, and 

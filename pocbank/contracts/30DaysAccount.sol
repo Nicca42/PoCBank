@@ -45,7 +45,7 @@ contract DelayAccount {
         public
         payable 
         isOwner(msg.sender)
-        return(uint)
+        returns(uint)
     {
         //TODO: check if the withdraw history if anywithdraw is not compelaed,
         //TODO: has passed the time and is now true (check time here)
@@ -56,7 +56,7 @@ contract DelayAccount {
     function isWithdrawPossible()
         public 
         isOwner(msg.sender)
-        return(bool)
+        returns(bool)
     {
         //TODO: check if the address can withdraw this amount 
         return true;
