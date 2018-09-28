@@ -1,5 +1,7 @@
 pragma solidity ^0.4.24;
 
+import "./AccessAccount.sol";
+
 contract Bank {
     
     address owner;
@@ -9,18 +11,35 @@ contract Bank {
         address bankAccount;
         AccountType typeOfAccount;
     }
-    mapping (address => AccountDetails) allBankAccountsFromUserWallet;
-    mapping (address => address) userWalletsFromBankAccounts;
+    mapping (address => AccountDetails) private userWallets;
+    mapping (address => address) userWalletsToBankAccounts;
     
     mapping(address => bool) userWalletLocks;
     
+    event LogEvent(string _description, uint _choice, address _thisAddress);
+    
+    /**
+        @param userWallet : the address of the new users wallet.
+        @dev Checks the account is not curently busy with a transaction. 
+            This lock is seporate from locks placed on voting (trust accounts). 
+    */
     modifier isLocked(address userWallet) {
-        //TODO: if userWallet is not a user wallet 
-                //TODO: then get 
-        //TODO: checks the userWalletLocks is not locked 
-            //return false if locked
-        //TODO: if there is a linked bankAccount check its not lockedd
-            //return false if locked
+        require(userWalletLocks[userWallet] != true);
+        if(userWalletsToBankAccounts[userWallet] != 0x0){
+            if(userWallets[userWallet].typeOfAccount == AccountType.access){
+                //access account 
+                 AccessAccount isLockedAccount = AccessAccount(userWalletsToBankAccounts[userWallet]);
+                 require(isLockedAccount.isLocked() != true);
+            } else if(userWallets[userWallet].typeOfAccount == AccountType.delay){
+                //delay, 30 days, account
+                
+            } else if(userWallets[userWallet].typeOfAccount == AccountType.trust){
+                //trust account
+                
+            } else {
+                //user accoutn not identified
+            }
+        }
         _;
     }
     
@@ -30,12 +49,16 @@ contract Bank {
         owner = msg.sender;
     }
     
+    /**
+        @param _toLock : The address of the user to lock.
+        @dev Allows the bank to lock a user durning a transaction. 
+    */
     function lockAddress(address _toLock)
         internal
         returns(bool)
     {
-        //TODO: lock the user wallet
-        //TODO: lock the linked bank account if it exisits
+        require(userWalletLocks[_toLock] == false, "User wallet already locked");
+        userWalletLocks[_toLock] = true;
         return true;
     }
     
@@ -43,26 +66,63 @@ contract Bank {
         internal
         returns(bool)
     {
-        //TODO: unlock user wallet
+        require(userWalletLocks[_toUnlock] == true, "User wallet aready unlocked");
+        userWalletLocks[_toUnlock] == false;
         //TODO: unlock the linked bank account if it exisits
         return true;
     }
     
-    function createBankAccount(AccountType _chosenType) 
+    function createBankAccount(uint8 _chosenType) 
         public
-        isLocked(msg.sender)
-        returns(bool)    
+        payable
+        // isLocked(msg.sender)
+        returns(address)    
     {
-            require(lockAddress(msg.sender));
-        //TODO: lock users wallet in a function, and 
-        //TODO: create a user account with:
-            //TODO: owner == msg.sender;
-            //TODO: typeOfAccount == chosenType;
-            //TODO: add adress of contract to mapping of allBankAccounts;
-            require(unlockUser(msg.sender));
-            return true;
+        // LogEvent("Before locking address", 1, this);
+        
+        // require(lockAddress(msg.sender));
+        
+        // LogEvent("After locking user", 2, this);
+        
+        if(_chosenType == 1){
+            
+            address newAccountAddress = new AccessAccount(this, msg.sender);
+            uint balance = msg.value;
+            AccessAccount newAccount = AccessAccount(newAccountAddress);
+            newAccount.deposit.value(msg.value)(balance);
+            return newAccountAddress;
+            
+        } 
+        else if(_chosenType == 2){
+        //     //delay, 30 days, account 
+            LogEvent("Chosen type is delay", 3, this);
+            
+        } else if(_chosenType == 3){
+        //     //trust account
+            LogEvent("Chosen type is trust", 3, this);
+            
+        } else {
+        //     //no account was identified
+            LogEvent("No type was detected", 3, this);
+            
+        }
+        // //TODO: lock users wallet in a function, and 
+        // //TODO: create a user account with:
+        //     //TODO: owner == msg.sender;
+        //     //TODO: typeOfAccount == chosenType;
+        //     //TODO: add adress of contract to mapping of allBankAccounts;
+        //     require(unlockUser(msg.sender));
+        //     return 0x0;
+        //     LogEvent("Failed everthing", 10, this);
     }
     
+    function isAccountFrozen()
+        public
+        view
+        returns(bool)
+    {
+        return userWalletLocks[msg.sender];
+    }
     
     function freezeAccount(address _bankAccounts)
         public
