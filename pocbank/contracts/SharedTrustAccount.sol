@@ -1,70 +1,73 @@
 pragma solidity ^0.4.24;
 
-contract SharedTrustAccount {
-    address[] owners;
-    address bank;
+//TODO: imports
+
+contract DelayAccount {
+    address[2] owners;
+    uint balance;
+    bool lock = false;
     
-    enum VoteTypes {dissolve, freeze, withdraw, addOwner, deleteOwner}
-    struct OwnerVotes {
-        address owner;
-        VoteTypes typeOfVote;
-        bool voted;
-    }
-    struct voteDetails{
-        VoteTypes vote;
-        address[] owners;
-        OwnerVotes ifVotedForTypes;
-        bool[] votes;
-        bool compleated;
+    struct WithdrawRequest {
+        uint time;
+        bool possible;
+        uint amount;
+        bool compleatedDelay;
     }
     
-    voteDetails[] internal historyOfVotes;
+    WithdrawRequest[] allWithdrawRequests;
     
-    modifier onlyOwners(address isOwner){
-        //TODO: if the address is an owner, dont fail
+    //TODO: modifier isOwner
+    modifier isOwner(address owner){
+        require(owners[0] == owner || owners[1] == owner);
         _;
-    }
-    
-    modifier haveNotVoted(address owner){
-        //TODO: if the owner has not voted on this vote, dont fail
-        _;
-    }
-    
-    constructor(address[] _owners, address _bank;)
-    {
-        //TODO: 
-        if(owners.length  < 50){
-            owners = _owners;
-            bank = _bank;
-            //return true;
-        } else {
-            //return false;
-        }
     }
     
     /**
-        @param _against : if they are voting yes this is true.
+     @param _owners : the addresses of the 2 owners of this contract
     */
-    function vote(VoteTypes _voteType, bool _against)
+    constructor(address[2] _owners) {
+        owners = _owners;
+    }
+    
+    function requestWithdraw(uint _amount) 
         public
-        onlyOwners(msg.sender)
-        haveNotVoted(msg.sender)
-        returns(bool)
+        isOwner(msg.sender)
+        returns(uint)
     {
-        //TODO: lock them for this specific vote type
-        //TODO: make their vote what they voted. 
+        //TODO: balance =- _amount;
+        //TODO: add withdraw request to allWithdrawRequests[]
+        //TODO: return: the time it will be till the withdraw can be made, 
+        //TODO: if its 1 it failed
+    }
+    
+    
+    function withdraw(uint _amount)
+        public
+        payable 
+        isOwner(msg.sender)
+        return(uint)
+    {
+        //TODO: check if the withdraw history if anywithdraw is not compelaed,
+        //TODO: has passed the time and is now true (check time here)
+        //TODO: check the withraw request passed (possible)
+        //TODO: call check withdraw possible
+    }
+    
+    function isWithdrawPossible()
+        public 
+        isOwner(msg.sender)
+        return(bool)
+    {
+        //TODO: check if the address can withdraw this amount 
         return true;
     }
     
-    function getVotes(VoteTypes _voteType)
-        internal
-        return(bool[])
+    function deposit(uint _amount)
+        public
+        payable 
     {
-        //TODO: get the votes of the owners
-        //TODO: checks that the time has passsed
-        //TODO: assert fail if time has not passed. 
-        //TODO: check in the history of all the others for:
-            //TODO: any vote after a dissolve 
-            //TODO: no votes during a freeze 
+        //TODO: lock both parties in system.
+        //TODO: take eth given, check it against the _amount
+        //TODO: change balance 
     }
 }

@@ -72,28 +72,38 @@ contract Bank {
         return true;
     }
     
+    /**
+        @param _chosenType : The type of account. 
+                1 : access account
+                2 : delay, or the 30 days withdrawls account
+                3 : the shared access trust account
+        @dev This function makes the contracts for the users, with 
+            different data reqirements. 
+    */
     function createBankAccount(uint8 _chosenType) 
         public
         payable
         // isLocked(msg.sender)
         returns(address)    
     {
-        // LogEvent("Before locking address", 1, this);
-        
-        // require(lockAddress(msg.sender));
-        
-        // LogEvent("After locking user", 2, this);
-        
         if(_chosenType == 1){
-            
+            // access account
             address newAccountAddress = new AccessAccount(this, msg.sender);
             uint balance = msg.value;
             AccessAccount newAccount = AccessAccount(newAccountAddress);
             newAccount.deposit.value(msg.value)(balance);
+             address[] temp;
+             temp[0] = this;
+             temp[1] = msg.sender;
+            userWallets[msg.sender] = AccountDetails({
+                owners: temp,
+                bankAccount: newAccountAddress,
+                typeOfAccount: AccountType.access
+            });
+            userWalletsToBankAccounts[msg.sender] = newAccountAddress;
             return newAccountAddress;
             
-        } 
-        else if(_chosenType == 2){
+        } else if(_chosenType == 2){
         //     //delay, 30 days, account 
             LogEvent("Chosen type is delay", 3, this);
             
