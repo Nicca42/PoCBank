@@ -4,6 +4,7 @@ contract TrustAccount {
     mapping (address => bool) accountOwners;
     address bank;
     uint balance;
+    bool frozen = false;
     
     enum VoteTypes {dissolve, freeze, withdraw, addOwner, deleteOwner}
     struct OwnerVotes {
@@ -37,6 +38,26 @@ contract TrustAccount {
         // accountOwners = _owners;
         accountOwners[_initialOwners] = true;
         bank = _bank;
+    }
+
+    function freezeAccount()
+        public
+        onlyOwner(msg.sender)
+        returns(bool)
+    {
+        assert(frozen == false);
+        frozen = true;
+        return true;
+    }
+    
+    function unfreezeAccount()
+        public
+        onlyOwner(msg.sender)
+        returns(bool)
+    {
+        assert(frozen == true);
+        frozen = false;
+        return true;
     }
     
     /**

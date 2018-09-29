@@ -6,7 +6,7 @@ contract DelayAccount {
     address owner;
     address bank;
     uint balance;
-    bool lock = false;
+    bool frozen = false;
     
     struct WithdrawRequest {
         uint time;
@@ -29,6 +29,26 @@ contract DelayAccount {
     constructor(address _owner, address _bank) {
         owner = _owner;
         bank = _bank;
+    }
+
+     function freezeAccount()
+        public
+        onlyOwner(msg.sender)
+        returns(bool)
+    {
+        assert(frozen == false);
+        frozen = true;
+        return true;
+    }
+    
+    function unfreezeAccount()
+        public
+        onlyOwner(msg.sender)
+        returns(bool)
+    {
+        assert(frozen == true);
+        frozen = false;
+        return true;
     }
     
     function requestWithdraw(uint _amount) 

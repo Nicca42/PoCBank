@@ -47,6 +47,11 @@ contract Bank {
         }
         _;
     }
+
+    modifier isOwner(address _toCheck){
+        require(_toCheck == owner, "Function only accesibly by owner");
+        _;
+    }
     
     constructor() 
         public
@@ -73,7 +78,8 @@ contract Bank {
         @dev Allows the bank to lock a user durning a transaction. 
     */
     function lockAddress(address _toLock)
-        internal
+        public
+        isOwner(msg.sender)
         returns(bool)
     {
         require(userWalletLocks[_toLock] == false, "User wallet already locked");
@@ -82,7 +88,8 @@ contract Bank {
     }
     
     function unlockUser(address _toUnlock)
-        internal
+        public
+        isOwner(msg.sender)
         returns(bool)
     {
         require(userWalletLocks[_toUnlock] == true, "User wallet aready unlocked");
@@ -160,34 +167,60 @@ contract Bank {
         //     return 0x0;
         //     LogEvent("Failed everthing", 10, this);
     }
-    
+
     function isAccountFrozen()
         public
         view
-        returns(bool)
+        returns(bool lockStatus)
     {
-        return userWalletLocks[msg.sender];
+        lockStatus = userWalletLocks[msg.sender];
+    }
+
+    event LogProgress(string _progressPoint, address _address);
+
+    function lockAccount(address _userWalletAddressToLock)
+        public
+        isOwner(msg.sender)
+    {
+        address usersAccount = userWallets[_userWalletAddressToLock].bankAccount;
+        emit LogProgress("user account: ", usersAccount);
+        require(usersAccount != 0x0, "Account must exist in system");
+        emit LogProgress("account is not 0x0", usersAccount);
+        lockAddress(_userWalletAddressToLock);
+        // AccountType usersAccountType = userWallets[_userWalletAddressToLock].typeOfAccount;
+        // if(usersAccountType == AccountType.access){
+        //     AccessAccount userAccountAccess = AccessAccount(usersAccount);
+        //     userAccountAccess.freezeAccount();
+        // } else if(usersAccountType == AccountType.delay){
+        //     DelayAccount userAccountDelay = DelayAccount(usersAccount);
+        //     userAccountDelay.freezeAccount();
+        // } else if(usersAccountType == AccountType.trust){
+        //     // TrustAccount userAccountTrust = TrustAccount(usersAccount);
+        //     // userAccountTrust.freezeAccount();
+        // } else {
+        //     // assert(false);
+        // }
     }
     
-    function freezeAccount(address _bankAccounts)
+    function unlockAccount(address _userWalletAddressToUnlock)
         public
-        returns(bool)
+        isOwner(msg.sender)
     {
-        //TODO: require( _bankAccount is real);
-        //TODO: require( the msg.sender is an owner
-        //TODO: if there are multiple owners then check they have voted
-        //TODO: freeze the account
-        return true;
-    }
-    
-    function unfreezeAccount(address _bankAccount)
-        public
-        returns(bool)
-    {
-        //TODO: require( _bankAccount is real);
-        //TODO: require( the msg.sender is an owner
-        //TODO: unfreeze the account
-        return true;
+       address usersAccount = userWallets[_userWalletAddressToUnlock].bankAccount;
+        require(usersAccount != 0x0, "Account must exist in system");
+        AccountType usersAccountType = userWallets[_userWalletAddressToUnlock].typeOfAccount;
+        if(usersAccountType == AccountType.access){
+            AccessAccount userAccountAccess = AccessAccount(usersAccount);
+            userAccountAccess.unfreezeAccount();
+        } else if(usersAccountType == AccountType.delay){
+            // DelayAccount userAccountDelay = DelayAccount(usersAccount);
+            // userAccountDelay.unfreezeAccount();
+        } else if(usersAccountType == AccountType.trust){
+            // TrustAccount userAccountTrust = TrustAccount(usersAccount);
+            // userAccountTrust.unfreezeAccount();
+        } else {
+            // assert(false);
+        }
     }
     
     function changeOwnership(address _newAddress, address _oldAddress)

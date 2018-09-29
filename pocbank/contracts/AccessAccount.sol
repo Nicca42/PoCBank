@@ -11,6 +11,7 @@ contract AccessAccount {
     event LogCreatedAccessAccountContract(address _this, address _owner);
     
     event LogEvent(string _description, uint _choice, address _thisAddress);
+    event LogBool(string _description, bool _result);
         
     modifier onlyOwner(address isOwner){
         require(isOwner == owner || isOwner == bank, "Must be owner");
@@ -19,8 +20,11 @@ contract AccessAccount {
     
     modifier frozonCheck() {
         require(frozen == false, "Account is frozon. Please unfreeze");
-        Bank bankOb = Bank(bank);
-        require(bankOb.isAccountFrozen() == false, "Account is frozon. Please unfreeze");
+        // Bank bankOb = Bank(bank);
+        emit LogEvent("before getting if the account is frozen from bank", 1, this);
+        // bool isFrozenInBank = bankOb.isAccountFrozen();
+        // emit LogBool("is frozen...: ", isFrozenInBank);
+        // require(isFrozenInBank == false, "Account is frozon. Please unfreeze");
         _;
     }
         
@@ -46,59 +50,56 @@ contract AccessAccount {
     function freezeAccount()
         public
         onlyOwner(msg.sender)
-        returns(bool)
     {
-        if(frozen == true){
-            return false;
-        }
+        assert(frozen == false);
         frozen = true;
-        return true;
     }
     
     function unfreezeAccount()
         public
         onlyOwner(msg.sender)
-        returns(bool)
     {
-        if(frozen == false){
-            return false;
-        }
+        assert(frozen == true);
         frozen = false;
-        return true;
     }
     
     function withdraw(uint _amount)
         public
         payable
-        onlyOwner(msg.sender)
         frozonCheck()
+        onlyOwner(msg.sender)
         returns(uint)
     {
-        require(freezeAccount(), "Account must freeze successfully during transactions");
+        freezeAccount();
 
         require(_amount < balance, "Cannot withdraw more than balance");
         require(balance - _amount > 0, "Cannot make balance negative");
+        require(frozen == true);
 
         balance -= _amount;
         owner.transfer(_amount);
         
-        require(unfreezeAccount(), "Account must freeze successfully during transactions");
+        unfreezeAccount();
 
         return balance;
     }
     
-    function sendFunds(address _to)
+    function sendFunds(uint _amount, address _to)
         public
         payable
         onlyOwner(msg.sender)
         frozonCheck()
         returns(uint)
     {
-        require(freezeAccount(), "Account must freeze successfully during transactions");
+        freezeAccount();
 
+        require(_amount < balance, "Cannot withdraw more than balance");
+        require(balance - _amount > 0, "Cannot make balance negative");
 
+        balance -= _amount;
+        _to.transfer(_amount);
 
-        require(unfreezeAccount(), "Account must freeze successfully during transactions");
+        unfreezeAccount();
         return balance;
     }
     

@@ -14,7 +14,7 @@ const {
 var Bank = artifacts.require("./Bank.sol");
 var AccessAccount = artifacts.require("./AccessAccount.sol");
 
-contract('System test', function(accounts) {
+contract('Bank Tests', function(accounts) {
 
     const bankOwner = accounts[0];
     const userWallet = accounts[1];
@@ -65,43 +65,34 @@ contract('System test', function(accounts) {
         assert.equal(bankAccountBalance, 1000, "Bank account balance is 1000");
     });
 
-    it("(Access)Test the deposit.", async() => {
-        await bank.createBankAccount(1, {from: accessAccountOwner});
-        let bankAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
-        let accessAccountContact = await AccessAccount.at(bankAccountAddress);
-        let bankAccountBalanceBefore = await accessAccountContact.viewBalance({from: accessAccountOwner});
-        await accessAccountContact.deposit(100, {value: 100});
-        let bankAccountBalanceAfter = await accessAccountContact.viewBalance({from: accessAccountOwner});
-
-        //checks the balances are different
-        assert.notEqual(bankAccountBalanceBefore, bankAccountBalanceAfter, "Balance changes with deposit");
-        //checks the balance after is 100
-        assert.equal(bankAccountBalanceBefore + 100, 100, "Balance changes by 100");
-        //checks the amount after is 100
-        assert.equal(bankAccountBalanceAfter, 100, "Amount after deposit is 100");
-    });
-
-    it("(Access)Test the withdraw of an acount.", async() => {
+    it("(Acess)Test freezing account by bank.", async() => {
+        let bankContractAddress = bank.address;
         await bank.createBankAccount(1, {from: accessAccountOwner, value: 1000});
         let bankAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
         let accessAccountContact = await AccessAccount.at(bankAccountAddress);
-        let bankAccountBalance = await accessAccountContact.viewBalance({from: accessAccountOwner});
+        await bank.lockAddress(accessAccountOwner, {from: bankOwner});
+        
+        //checks the withdraw function fails when account is frozen
+        await expectThrow(accessAccountContact.withdraw(100, {from: accessAccountOwner}), EVMRevert);
+    });
+
+    it("(Access)Test unfreezing acount by bank.", async() => {
+        let bankContractAddress = await bank.address;
+        await bank.createBankAccount(1, {from: accessAccountOwner, value: 1000});
+        let bankAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
+        let accessAccountContact = await AccessAccount.at(bankAccountAddress);
+        let balance = await accessAccountContact.viewBalance({from: accessAccountOwner});
+        await bank.lockAddress(accessAccountOwner, {from: bankOwner});
+        
+        //checks the withdraw function fails when account is frozen
+        await expectThrow( accessAccountContact.withdraw(100, {from: accessAccountOwner}), EVMRevert);
+
+        await bank.unlockUser(accessAccountOwner, {from: bankOwner});
         await accessAccountContact.withdraw(100, {from: accessAccountOwner});
-        let bankAccountBalanceAfter = await accessAccountContact.viewBalance({from: accessAccountOwner});
+        let balanceAfter = await accessAccountContact.viewBalance({from: accessAccountOwner});
 
-        //checks the balance is changed after withdraw
-        assert.notEqual(bankAccountBalance, bankAccountBalanceAfter, "Balance changes when 100 withdrawn");
-        //checks the balanced changed by 100
-        assert.equal(bankAccountBalance - 100, bankAccountBalanceAfter, "Balance changes by 100");
-    });
-
-    it("(Access)Test the freezing of account", async() => {
-        await bank.createBankAccount(1, {from: accessAccountOwner, value: 1000});
-        let bankAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
-        let accessAccountContact = await AccessAccount.at(bankAccountAddress);
-
-        let freezeSuccess = await accessAccountContact.freezeAccount.call({from: accessAccountOwner});
-        consol.log(freezeSuccess + ": freeze status");
+        //checks the account is unfrozen and trasactions can occur
+        assert.equal(balance["c"][0] - 100, balanceAfter, "Account can perform transactions after unfreezing");
     });
 
 /**
