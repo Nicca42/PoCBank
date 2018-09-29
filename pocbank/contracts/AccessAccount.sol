@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import"./Bank.sol";
+import "./Bank.sol";
 
 contract AccessAccount {
     address owner;
@@ -23,9 +23,10 @@ contract AccessAccount {
     }
         
     constructor(address _bank, address _owner) {
-        LogEvent("Created the contract", 1, this);
         owner = _owner;
         bank = _bank;
+
+        emit LogEvent("Created the contract", 1, this);
     }
     
     function isLocked() 
@@ -73,7 +74,7 @@ contract AccessAccount {
         require(_amount < balance, "Cannot withdraw more than balance");
         require(balance - _amount > 0);
         balance = balance - _amount;
-        owner.send(_amount);
+        owner.transfer(_amount);
         
         require(unfreezeAccount());
     }
@@ -104,7 +105,7 @@ contract AccessAccount {
         onlyOwner(msg.sender)
         returns(uint)
     {
-        return this.balance;
+        return balance;
     }
     
 }

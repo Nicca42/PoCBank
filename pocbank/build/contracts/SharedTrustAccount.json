@@ -1,0 +1,2014 @@
+{
+  "contractName": "SharedTrustAccount",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "name": "_owners",
+          "type": "address[]"
+        },
+        {
+          "name": "_bank",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_voteType",
+          "type": "uint8"
+        },
+        {
+          "name": "_against",
+          "type": "bool"
+        }
+      ],
+      "name": "vote",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b506040516101213803806101218339810180604052810190808051820192919060200180519060200190929190505050505060d1806100506000396000f300608060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680632808241e146044575b600080fd5b348015604f57600080fd5b50607b600480360381019080803560ff1690602001909291908035151590602001909291905050506095565b604051808215151515815260200191505060405180910390f35b60003333600192505050929150505600a165627a7a7230582093a53eac893a817fca2b06371267e67ae4541297650bd8032ac550149ddf7dc50029",
+  "deployedBytecode": "0x608060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680632808241e146044575b600080fd5b348015604f57600080fd5b50607b600480360381019080803560ff1690602001909291908035151590602001909291905050506095565b604051808215151515815260200191505060405180910390f35b60003333600192505050929150505600a165627a7a7230582093a53eac893a817fca2b06371267e67ae4541297650bd8032ac550149ddf7dc50029",
+  "sourceMap": "28:1828:4:-;;;776:276;8:9:-1;5:2;;;30:1;27;20:12;5:2;776:276:4;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;28:1828;;;;;;",
+  "deployedSourceMap": "28:1828:4:-;;;;;;;;;;;;;;;;;;;;;;;;1145:296;;8:9:-1;5:2;;;30:1;27;20:12;5:2;1145:296:4;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1294:4;1231:10;1265;1429:4;1422:11;;619:1;1145:296;;;;;:::o",
+  "source": "pragma solidity ^0.4.24;\r\n\r\ncontract SharedTrustAccount {\r\n    address[] owners;\r\n    address bank;\r\n    \r\n    enum VoteTypes {dissolve, freeze, withdraw, addOwner, deleteOwner}\r\n    struct OwnerVotes {\r\n        address owner;\r\n        VoteTypes typeOfVote;\r\n        bool voted;\r\n    }\r\n    struct voteDetails{\r\n        VoteTypes vote;\r\n        address[] owners;\r\n        OwnerVotes ifVotedForTypes;\r\n        bool[] votes;\r\n        bool compleated;\r\n    }\r\n    \r\n    voteDetails[] internal historyOfVotes;\r\n    \r\n    modifier onlyOwners(address isOwner){\r\n        //TODO: if the address is an owner, dont fail\r\n        _;\r\n    }\r\n    \r\n    modifier haveNotVoted(address owner){\r\n        //TODO: if the owner has not voted on this vote, dont fail\r\n        _;\r\n    }\r\n    \r\n    constructor(address[] _owners, address _bank)\r\n    {\r\n        //TODO: \r\n        // if(owners.length  < 50){\r\n        //     owners = _owners;\r\n        //     bank = _bank;\r\n        //     //return true;\r\n        // } else {\r\n        //     //return false;\r\n        // }\r\n    }\r\n    \r\n    /**\r\n        @param _against : if they are voting yes this is true.\r\n    */\r\n    function vote(VoteTypes _voteType, bool _against)\r\n        public\r\n        onlyOwners(msg.sender)\r\n        haveNotVoted(msg.sender)\r\n        returns(bool)\r\n    {\r\n        //TODO: lock them for this specific vote type\r\n        //TODO: make their vote what they voted. \r\n        return true;\r\n    }\r\n    \r\n    function getVotes(VoteTypes _voteType)\r\n        internal\r\n        returns(bool[])\r\n    {\r\n        //TODO: get the votes of the owners\r\n        //TODO: checks that the time has passsed\r\n        //TODO: assert fail if time has not passed. \r\n        //TODO: check in the history of all the others for:\r\n            //TODO: any vote after a dissolve \r\n            //TODO: no votes during a freeze \r\n    }\r\n}",
+  "sourcePath": "C:\\Users\\Veronica Coutts\\Desktop\\Desktop\\Work\\LinumLabs\\PoCBank\\pocbank\\contracts\\SharedTrustAccount.sol",
+  "ast": {
+    "absolutePath": "/C/Users/Veronica Coutts/Desktop/Desktop/Work/LinumLabs/PoCBank/pocbank/contracts/SharedTrustAccount.sol",
+    "exportedSymbols": {
+      "SharedTrustAccount": [
+        822
+      ]
+    },
+    "id": 823,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 737,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:4"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 822,
+        "linearizedBaseContracts": [
+          822
+        ],
+        "name": "SharedTrustAccount",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 740,
+            "name": "owners",
+            "nodeType": "VariableDeclaration",
+            "scope": 822,
+            "src": "63:16:4",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_array$_t_address_$dyn_storage",
+              "typeString": "address[]"
+            },
+            "typeName": {
+              "baseType": {
+                "id": 738,
+                "name": "address",
+                "nodeType": "ElementaryTypeName",
+                "src": "63:7:4",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                }
+              },
+              "id": 739,
+              "length": null,
+              "nodeType": "ArrayTypeName",
+              "src": "63:9:4",
+              "typeDescriptions": {
+                "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                "typeString": "address[]"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 742,
+            "name": "bank",
+            "nodeType": "VariableDeclaration",
+            "scope": 822,
+            "src": "86:12:4",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 741,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "86:7:4",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "canonicalName": "SharedTrustAccount.VoteTypes",
+            "id": 748,
+            "members": [
+              {
+                "id": 743,
+                "name": "dissolve",
+                "nodeType": "EnumValue",
+                "src": "127:8:4"
+              },
+              {
+                "id": 744,
+                "name": "freeze",
+                "nodeType": "EnumValue",
+                "src": "137:6:4"
+              },
+              {
+                "id": 745,
+                "name": "withdraw",
+                "nodeType": "EnumValue",
+                "src": "145:8:4"
+              },
+              {
+                "id": 746,
+                "name": "addOwner",
+                "nodeType": "EnumValue",
+                "src": "155:8:4"
+              },
+              {
+                "id": 747,
+                "name": "deleteOwner",
+                "nodeType": "EnumValue",
+                "src": "165:11:4"
+              }
+            ],
+            "name": "VoteTypes",
+            "nodeType": "EnumDefinition",
+            "src": "111:66:4"
+          },
+          {
+            "canonicalName": "SharedTrustAccount.OwnerVotes",
+            "id": 755,
+            "members": [
+              {
+                "constant": false,
+                "id": 750,
+                "name": "owner",
+                "nodeType": "VariableDeclaration",
+                "scope": 755,
+                "src": "212:13:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 749,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "212:7:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 752,
+                "name": "typeOfVote",
+                "nodeType": "VariableDeclaration",
+                "scope": 755,
+                "src": "236:20:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_VoteTypes_$748",
+                  "typeString": "enum SharedTrustAccount.VoteTypes"
+                },
+                "typeName": {
+                  "contractScope": null,
+                  "id": 751,
+                  "name": "VoteTypes",
+                  "nodeType": "UserDefinedTypeName",
+                  "referencedDeclaration": 748,
+                  "src": "236:9:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_VoteTypes_$748",
+                    "typeString": "enum SharedTrustAccount.VoteTypes"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 754,
+                "name": "voted",
+                "nodeType": "VariableDeclaration",
+                "scope": 755,
+                "src": "267:10:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 753,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "267:4:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "OwnerVotes",
+            "nodeType": "StructDefinition",
+            "scope": 822,
+            "src": "183:102:4",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "SharedTrustAccount.voteDetails",
+            "id": 768,
+            "members": [
+              {
+                "constant": false,
+                "id": 757,
+                "name": "vote",
+                "nodeType": "VariableDeclaration",
+                "scope": 768,
+                "src": "320:14:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_VoteTypes_$748",
+                  "typeString": "enum SharedTrustAccount.VoteTypes"
+                },
+                "typeName": {
+                  "contractScope": null,
+                  "id": 756,
+                  "name": "VoteTypes",
+                  "nodeType": "UserDefinedTypeName",
+                  "referencedDeclaration": 748,
+                  "src": "320:9:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_VoteTypes_$748",
+                    "typeString": "enum SharedTrustAccount.VoteTypes"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 760,
+                "name": "owners",
+                "nodeType": "VariableDeclaration",
+                "scope": 768,
+                "src": "345:16:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                  "typeString": "address[]"
+                },
+                "typeName": {
+                  "baseType": {
+                    "id": 758,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "345:7:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 759,
+                  "length": null,
+                  "nodeType": "ArrayTypeName",
+                  "src": "345:9:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                    "typeString": "address[]"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 762,
+                "name": "ifVotedForTypes",
+                "nodeType": "VariableDeclaration",
+                "scope": 768,
+                "src": "372:26:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_OwnerVotes_$755_storage_ptr",
+                  "typeString": "struct SharedTrustAccount.OwnerVotes"
+                },
+                "typeName": {
+                  "contractScope": null,
+                  "id": 761,
+                  "name": "OwnerVotes",
+                  "nodeType": "UserDefinedTypeName",
+                  "referencedDeclaration": 755,
+                  "src": "372:10:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_OwnerVotes_$755_storage_ptr",
+                    "typeString": "struct SharedTrustAccount.OwnerVotes"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 765,
+                "name": "votes",
+                "nodeType": "VariableDeclaration",
+                "scope": 768,
+                "src": "409:12:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_bool_$dyn_storage_ptr",
+                  "typeString": "bool[]"
+                },
+                "typeName": {
+                  "baseType": {
+                    "id": 763,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "409:4:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 764,
+                  "length": null,
+                  "nodeType": "ArrayTypeName",
+                  "src": "409:6:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_bool_$dyn_storage_ptr",
+                    "typeString": "bool[]"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 767,
+                "name": "compleated",
+                "nodeType": "VariableDeclaration",
+                "scope": 768,
+                "src": "432:15:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 766,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "432:4:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "voteDetails",
+            "nodeType": "StructDefinition",
+            "scope": 822,
+            "src": "291:164:4",
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 771,
+            "name": "historyOfVotes",
+            "nodeType": "VariableDeclaration",
+            "scope": 822,
+            "src": "467:37:4",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_array$_t_struct$_voteDetails_$768_storage_$dyn_storage",
+              "typeString": "struct SharedTrustAccount.voteDetails[]"
+            },
+            "typeName": {
+              "baseType": {
+                "contractScope": null,
+                "id": 769,
+                "name": "voteDetails",
+                "nodeType": "UserDefinedTypeName",
+                "referencedDeclaration": 768,
+                "src": "467:11:4",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_voteDetails_$768_storage_ptr",
+                  "typeString": "struct SharedTrustAccount.voteDetails"
+                }
+              },
+              "id": 770,
+              "length": null,
+              "nodeType": "ArrayTypeName",
+              "src": "467:13:4",
+              "typeDescriptions": {
+                "typeIdentifier": "t_array$_t_struct$_voteDetails_$768_storage_$dyn_storage_ptr",
+                "typeString": "struct SharedTrustAccount.voteDetails[]"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 776,
+              "nodeType": "Block",
+              "src": "553:75:4",
+              "statements": [
+                {
+                  "id": 775,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "619:1:4"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 777,
+            "name": "onlyOwners",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 774,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 773,
+                  "name": "isOwner",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 777,
+                  "src": "537:15:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 772,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "537:7:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "536:17:4"
+            },
+            "src": "517:111:4",
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 782,
+              "nodeType": "Block",
+              "src": "676:88:4",
+              "statements": [
+                {
+                  "id": 781,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "755:1:4"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 783,
+            "name": "haveNotVoted",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 780,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 779,
+                  "name": "owner",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 783,
+                  "src": "662:13:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 778,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "662:7:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "661:15:4"
+            },
+            "src": "640:124:4",
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 791,
+              "nodeType": "Block",
+              "src": "827:225:4",
+              "statements": []
+            },
+            "documentation": null,
+            "id": 792,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 789,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 786,
+                  "name": "_owners",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 792,
+                  "src": "788:17:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 784,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "788:7:4",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 785,
+                    "length": null,
+                    "nodeType": "ArrayTypeName",
+                    "src": "788:9:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 788,
+                  "name": "_bank",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 792,
+                  "src": "807:13:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 787,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "807:7:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "787:34:4"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 790,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "827:0:4"
+            },
+            "scope": 822,
+            "src": "776:276:4",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 811,
+              "nodeType": "Block",
+              "src": "1305:136:4",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "hexValue": "74727565",
+                    "id": 809,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "bool",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "1429:4:4",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "value": "true"
+                  },
+                  "functionReturnParameters": 808,
+                  "id": 810,
+                  "nodeType": "Return",
+                  "src": "1422:11:4"
+                }
+              ]
+            },
+            "documentation": "@param _against : if they are voting yes this is true.\r",
+            "id": 812,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "argumentTypes": null,
+                    "expression": {
+                      "argumentTypes": null,
+                      "id": 799,
+                      "name": "msg",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 837,
+                      "src": "1231:3:4",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_magic_message",
+                        "typeString": "msg"
+                      }
+                    },
+                    "id": 800,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "memberName": "sender",
+                    "nodeType": "MemberAccess",
+                    "referencedDeclaration": null,
+                    "src": "1231:10:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  }
+                ],
+                "id": 801,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 798,
+                  "name": "onlyOwners",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 777,
+                  "src": "1220:10:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$_t_address_$",
+                    "typeString": "modifier (address)"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1220:22:4"
+              },
+              {
+                "arguments": [
+                  {
+                    "argumentTypes": null,
+                    "expression": {
+                      "argumentTypes": null,
+                      "id": 803,
+                      "name": "msg",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 837,
+                      "src": "1265:3:4",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_magic_message",
+                        "typeString": "msg"
+                      }
+                    },
+                    "id": 804,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "memberName": "sender",
+                    "nodeType": "MemberAccess",
+                    "referencedDeclaration": null,
+                    "src": "1265:10:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  }
+                ],
+                "id": 805,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 802,
+                  "name": "haveNotVoted",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 783,
+                  "src": "1252:12:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$_t_address_$",
+                    "typeString": "modifier (address)"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1252:24:4"
+              }
+            ],
+            "name": "vote",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 797,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 794,
+                  "name": "_voteType",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 812,
+                  "src": "1159:19:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_VoteTypes_$748",
+                    "typeString": "enum SharedTrustAccount.VoteTypes"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 793,
+                    "name": "VoteTypes",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 748,
+                    "src": "1159:9:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_VoteTypes_$748",
+                      "typeString": "enum SharedTrustAccount.VoteTypes"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 796,
+                  "name": "_against",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 812,
+                  "src": "1180:13:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 795,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1180:4:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1158:36:4"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 808,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 807,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 812,
+                  "src": "1294:4:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 806,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1294:4:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1293:6:4"
+            },
+            "scope": 822,
+            "src": "1145:296:4",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 820,
+              "nodeType": "Block",
+              "src": "1540:313:4",
+              "statements": []
+            },
+            "documentation": null,
+            "id": 821,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "getVotes",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 815,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 814,
+                  "name": "_voteType",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 821,
+                  "src": "1471:19:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_VoteTypes_$748",
+                    "typeString": "enum SharedTrustAccount.VoteTypes"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 813,
+                    "name": "VoteTypes",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 748,
+                    "src": "1471:9:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_VoteTypes_$748",
+                      "typeString": "enum SharedTrustAccount.VoteTypes"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1470:21:4"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 819,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 818,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 821,
+                  "src": "1527:6:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_bool_$dyn_memory_ptr",
+                    "typeString": "bool[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 816,
+                      "name": "bool",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1527:4:4",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "id": 817,
+                    "length": null,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1527:6:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_bool_$dyn_storage_ptr",
+                      "typeString": "bool[]"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1526:8:4"
+            },
+            "scope": 822,
+            "src": "1453:400:4",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "internal"
+          }
+        ],
+        "scope": 823,
+        "src": "28:1828:4"
+      }
+    ],
+    "src": "0:1856:4"
+  },
+  "legacyAST": {
+    "absolutePath": "/C/Users/Veronica Coutts/Desktop/Desktop/Work/LinumLabs/PoCBank/pocbank/contracts/SharedTrustAccount.sol",
+    "exportedSymbols": {
+      "SharedTrustAccount": [
+        822
+      ]
+    },
+    "id": 823,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 737,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:4"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 822,
+        "linearizedBaseContracts": [
+          822
+        ],
+        "name": "SharedTrustAccount",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 740,
+            "name": "owners",
+            "nodeType": "VariableDeclaration",
+            "scope": 822,
+            "src": "63:16:4",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_array$_t_address_$dyn_storage",
+              "typeString": "address[]"
+            },
+            "typeName": {
+              "baseType": {
+                "id": 738,
+                "name": "address",
+                "nodeType": "ElementaryTypeName",
+                "src": "63:7:4",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                }
+              },
+              "id": 739,
+              "length": null,
+              "nodeType": "ArrayTypeName",
+              "src": "63:9:4",
+              "typeDescriptions": {
+                "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                "typeString": "address[]"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 742,
+            "name": "bank",
+            "nodeType": "VariableDeclaration",
+            "scope": 822,
+            "src": "86:12:4",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 741,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "86:7:4",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "canonicalName": "SharedTrustAccount.VoteTypes",
+            "id": 748,
+            "members": [
+              {
+                "id": 743,
+                "name": "dissolve",
+                "nodeType": "EnumValue",
+                "src": "127:8:4"
+              },
+              {
+                "id": 744,
+                "name": "freeze",
+                "nodeType": "EnumValue",
+                "src": "137:6:4"
+              },
+              {
+                "id": 745,
+                "name": "withdraw",
+                "nodeType": "EnumValue",
+                "src": "145:8:4"
+              },
+              {
+                "id": 746,
+                "name": "addOwner",
+                "nodeType": "EnumValue",
+                "src": "155:8:4"
+              },
+              {
+                "id": 747,
+                "name": "deleteOwner",
+                "nodeType": "EnumValue",
+                "src": "165:11:4"
+              }
+            ],
+            "name": "VoteTypes",
+            "nodeType": "EnumDefinition",
+            "src": "111:66:4"
+          },
+          {
+            "canonicalName": "SharedTrustAccount.OwnerVotes",
+            "id": 755,
+            "members": [
+              {
+                "constant": false,
+                "id": 750,
+                "name": "owner",
+                "nodeType": "VariableDeclaration",
+                "scope": 755,
+                "src": "212:13:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 749,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "212:7:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 752,
+                "name": "typeOfVote",
+                "nodeType": "VariableDeclaration",
+                "scope": 755,
+                "src": "236:20:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_VoteTypes_$748",
+                  "typeString": "enum SharedTrustAccount.VoteTypes"
+                },
+                "typeName": {
+                  "contractScope": null,
+                  "id": 751,
+                  "name": "VoteTypes",
+                  "nodeType": "UserDefinedTypeName",
+                  "referencedDeclaration": 748,
+                  "src": "236:9:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_VoteTypes_$748",
+                    "typeString": "enum SharedTrustAccount.VoteTypes"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 754,
+                "name": "voted",
+                "nodeType": "VariableDeclaration",
+                "scope": 755,
+                "src": "267:10:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 753,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "267:4:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "OwnerVotes",
+            "nodeType": "StructDefinition",
+            "scope": 822,
+            "src": "183:102:4",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "SharedTrustAccount.voteDetails",
+            "id": 768,
+            "members": [
+              {
+                "constant": false,
+                "id": 757,
+                "name": "vote",
+                "nodeType": "VariableDeclaration",
+                "scope": 768,
+                "src": "320:14:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_enum$_VoteTypes_$748",
+                  "typeString": "enum SharedTrustAccount.VoteTypes"
+                },
+                "typeName": {
+                  "contractScope": null,
+                  "id": 756,
+                  "name": "VoteTypes",
+                  "nodeType": "UserDefinedTypeName",
+                  "referencedDeclaration": 748,
+                  "src": "320:9:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_VoteTypes_$748",
+                    "typeString": "enum SharedTrustAccount.VoteTypes"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 760,
+                "name": "owners",
+                "nodeType": "VariableDeclaration",
+                "scope": 768,
+                "src": "345:16:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                  "typeString": "address[]"
+                },
+                "typeName": {
+                  "baseType": {
+                    "id": 758,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "345:7:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 759,
+                  "length": null,
+                  "nodeType": "ArrayTypeName",
+                  "src": "345:9:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                    "typeString": "address[]"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 762,
+                "name": "ifVotedForTypes",
+                "nodeType": "VariableDeclaration",
+                "scope": 768,
+                "src": "372:26:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_OwnerVotes_$755_storage_ptr",
+                  "typeString": "struct SharedTrustAccount.OwnerVotes"
+                },
+                "typeName": {
+                  "contractScope": null,
+                  "id": 761,
+                  "name": "OwnerVotes",
+                  "nodeType": "UserDefinedTypeName",
+                  "referencedDeclaration": 755,
+                  "src": "372:10:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_OwnerVotes_$755_storage_ptr",
+                    "typeString": "struct SharedTrustAccount.OwnerVotes"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 765,
+                "name": "votes",
+                "nodeType": "VariableDeclaration",
+                "scope": 768,
+                "src": "409:12:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_bool_$dyn_storage_ptr",
+                  "typeString": "bool[]"
+                },
+                "typeName": {
+                  "baseType": {
+                    "id": 763,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "409:4:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 764,
+                  "length": null,
+                  "nodeType": "ArrayTypeName",
+                  "src": "409:6:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_bool_$dyn_storage_ptr",
+                    "typeString": "bool[]"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 767,
+                "name": "compleated",
+                "nodeType": "VariableDeclaration",
+                "scope": 768,
+                "src": "432:15:4",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 766,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "432:4:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "voteDetails",
+            "nodeType": "StructDefinition",
+            "scope": 822,
+            "src": "291:164:4",
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 771,
+            "name": "historyOfVotes",
+            "nodeType": "VariableDeclaration",
+            "scope": 822,
+            "src": "467:37:4",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_array$_t_struct$_voteDetails_$768_storage_$dyn_storage",
+              "typeString": "struct SharedTrustAccount.voteDetails[]"
+            },
+            "typeName": {
+              "baseType": {
+                "contractScope": null,
+                "id": 769,
+                "name": "voteDetails",
+                "nodeType": "UserDefinedTypeName",
+                "referencedDeclaration": 768,
+                "src": "467:11:4",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_voteDetails_$768_storage_ptr",
+                  "typeString": "struct SharedTrustAccount.voteDetails"
+                }
+              },
+              "id": 770,
+              "length": null,
+              "nodeType": "ArrayTypeName",
+              "src": "467:13:4",
+              "typeDescriptions": {
+                "typeIdentifier": "t_array$_t_struct$_voteDetails_$768_storage_$dyn_storage_ptr",
+                "typeString": "struct SharedTrustAccount.voteDetails[]"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 776,
+              "nodeType": "Block",
+              "src": "553:75:4",
+              "statements": [
+                {
+                  "id": 775,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "619:1:4"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 777,
+            "name": "onlyOwners",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 774,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 773,
+                  "name": "isOwner",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 777,
+                  "src": "537:15:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 772,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "537:7:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "536:17:4"
+            },
+            "src": "517:111:4",
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 782,
+              "nodeType": "Block",
+              "src": "676:88:4",
+              "statements": [
+                {
+                  "id": 781,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "755:1:4"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 783,
+            "name": "haveNotVoted",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 780,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 779,
+                  "name": "owner",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 783,
+                  "src": "662:13:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 778,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "662:7:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "661:15:4"
+            },
+            "src": "640:124:4",
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 791,
+              "nodeType": "Block",
+              "src": "827:225:4",
+              "statements": []
+            },
+            "documentation": null,
+            "id": 792,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 789,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 786,
+                  "name": "_owners",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 792,
+                  "src": "788:17:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 784,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "788:7:4",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 785,
+                    "length": null,
+                    "nodeType": "ArrayTypeName",
+                    "src": "788:9:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 788,
+                  "name": "_bank",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 792,
+                  "src": "807:13:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 787,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "807:7:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "787:34:4"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 790,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "827:0:4"
+            },
+            "scope": 822,
+            "src": "776:276:4",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 811,
+              "nodeType": "Block",
+              "src": "1305:136:4",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "hexValue": "74727565",
+                    "id": 809,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "bool",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "1429:4:4",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "value": "true"
+                  },
+                  "functionReturnParameters": 808,
+                  "id": 810,
+                  "nodeType": "Return",
+                  "src": "1422:11:4"
+                }
+              ]
+            },
+            "documentation": "@param _against : if they are voting yes this is true.\r",
+            "id": 812,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "argumentTypes": null,
+                    "expression": {
+                      "argumentTypes": null,
+                      "id": 799,
+                      "name": "msg",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 837,
+                      "src": "1231:3:4",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_magic_message",
+                        "typeString": "msg"
+                      }
+                    },
+                    "id": 800,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "memberName": "sender",
+                    "nodeType": "MemberAccess",
+                    "referencedDeclaration": null,
+                    "src": "1231:10:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  }
+                ],
+                "id": 801,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 798,
+                  "name": "onlyOwners",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 777,
+                  "src": "1220:10:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$_t_address_$",
+                    "typeString": "modifier (address)"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1220:22:4"
+              },
+              {
+                "arguments": [
+                  {
+                    "argumentTypes": null,
+                    "expression": {
+                      "argumentTypes": null,
+                      "id": 803,
+                      "name": "msg",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 837,
+                      "src": "1265:3:4",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_magic_message",
+                        "typeString": "msg"
+                      }
+                    },
+                    "id": 804,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "memberName": "sender",
+                    "nodeType": "MemberAccess",
+                    "referencedDeclaration": null,
+                    "src": "1265:10:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  }
+                ],
+                "id": 805,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 802,
+                  "name": "haveNotVoted",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 783,
+                  "src": "1252:12:4",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$_t_address_$",
+                    "typeString": "modifier (address)"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1252:24:4"
+              }
+            ],
+            "name": "vote",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 797,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 794,
+                  "name": "_voteType",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 812,
+                  "src": "1159:19:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_VoteTypes_$748",
+                    "typeString": "enum SharedTrustAccount.VoteTypes"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 793,
+                    "name": "VoteTypes",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 748,
+                    "src": "1159:9:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_VoteTypes_$748",
+                      "typeString": "enum SharedTrustAccount.VoteTypes"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 796,
+                  "name": "_against",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 812,
+                  "src": "1180:13:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 795,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1180:4:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1158:36:4"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 808,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 807,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 812,
+                  "src": "1294:4:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 806,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1294:4:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1293:6:4"
+            },
+            "scope": 822,
+            "src": "1145:296:4",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 820,
+              "nodeType": "Block",
+              "src": "1540:313:4",
+              "statements": []
+            },
+            "documentation": null,
+            "id": 821,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "getVotes",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 815,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 814,
+                  "name": "_voteType",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 821,
+                  "src": "1471:19:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_VoteTypes_$748",
+                    "typeString": "enum SharedTrustAccount.VoteTypes"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 813,
+                    "name": "VoteTypes",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 748,
+                    "src": "1471:9:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_VoteTypes_$748",
+                      "typeString": "enum SharedTrustAccount.VoteTypes"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1470:21:4"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 819,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 818,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 821,
+                  "src": "1527:6:4",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_bool_$dyn_memory_ptr",
+                    "typeString": "bool[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 816,
+                      "name": "bool",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1527:4:4",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "id": 817,
+                    "length": null,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1527:6:4",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_bool_$dyn_storage_ptr",
+                      "typeString": "bool[]"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1526:8:4"
+            },
+            "scope": 822,
+            "src": "1453:400:4",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "internal"
+          }
+        ],
+        "scope": 823,
+        "src": "28:1828:4"
+      }
+    ],
+    "src": "0:1856:4"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-09-29T08:18:29.378Z"
+}

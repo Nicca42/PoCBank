@@ -3,7 +3,8 @@ pragma solidity ^0.4.24;
 //TODO: imports
 
 contract DelayAccount {
-    address[2] owners;
+    address owner;
+    address bank;
     uint balance;
     bool lock = false;
     
@@ -17,16 +18,17 @@ contract DelayAccount {
     WithdrawRequest[] allWithdrawRequests;
     
     //TODO: modifier isOwner
-    modifier isOwner(address owner){
-        require(owners[0] == owner || owners[1] == owner);
+    modifier isOwner(address _owner){
+        require(owner == _owner || bank == _owner);
         _;
     }
     
     /**
      @param _owners : the addresses of the 2 owners of this contract
     */
-    constructor(address[2] _owners) {
-        owners = _owners;
+    constructor(address _owners, address _bank) {
+        owner = _owners;
+        bank = _bank;
     }
     
     function requestWithdraw(uint _amount) 

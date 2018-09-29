@@ -24,13 +24,34 @@ contract('System test', function(accounts) {
 
     beforeEach(async function () {
         bank = await Bank.new({from: bankOwner});
-    }
+        console.log("Created bank...>>>");
+    })
 
+    /**
+     * @dev tests the creatio of a new access account 
+     */
     it("Creating Access Account tests", async () => {
         await bank.createBankAccount(1, {from: accessAccountOwner});
-        
         let bankAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
 
+        //checking address is not blank
         assert.notEqual(bankAccountAddress, 0x0, "Returned bank account address is real");
+    });
+
+    it("Creating Access Account with funds tests", async () => {
+        await bank.createBankAccount(1, {from: accessAccountOwner, value: 1000});
+        let bankAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
+
+        let accessAccountContact = await AccessAccount.at(bankAccountAddress);
+        let bankAccountBalance = await accessAccountContact.viewBalance({from: accessAccountOwner});
+
+        //checking address is not blank
+        assert.notEqual(bankAccountAddress, 0x0, "Returned bank account address is real");
+        //checking bank balance is the amount send with 
+        assert.equal(bankAccountBalance, 1000, "Bank account balance is 1000");
+    });
+
+    it("", async () => {
+        
     });
 })

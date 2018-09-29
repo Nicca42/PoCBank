@@ -6,8 +6,9 @@ contract Bank {
     
     address owner;
     enum AccountType {access, delay, trust}
+    //only for access and delay accounts
     struct AccountDetails {
-        address[] owners;
+        address owner;
         address bankAccount;
         AccountType typeOfAccount;
     }
@@ -15,7 +16,8 @@ contract Bank {
     mapping (address => AccountDetails) private userWallets;
     mapping(address => bool) userWalletLocks;
     
-    event UserCreated(address[] _owners, AccountType _accountType, uint _initialBalance);
+    event AccessAccountCreated(address _owner, AccountType _accountType, uint _initialBalance);
+    event LogEvent(string _pointInCode, address _addressOFContract);
     
     /**
         @param userWallet : the address of the new users wallet.
@@ -48,6 +50,11 @@ contract Bank {
         owner = msg.sender;
     }
     
+    /**
+     * @param _userWallet : the address of the users account 
+     * @return address : the address of the users bank account
+     * @dev : needs tinkering 
+     */
     function getBankAccountAddress(address _userWallet)
         public
         view
@@ -100,17 +107,13 @@ contract Bank {
             uint balance = msg.value;
             AccessAccount newAccount = AccessAccount(newAccountAddress);
             newAccount.deposit.value(msg.value)(balance);
-             address[] temp;
-             temp[0] = this;
-             temp[1] = msg.sender;
             userWallets[msg.sender] = AccountDetails({
-                owners: temp,
+                owner: msg.sender,
                 bankAccount: newAccountAddress,
                 typeOfAccount: AccountType.access
             });
-            userWallets[msg.sender].bankAccount = newAccountAddress;
             
-            emit  UserCreated(temp, AccountType.access, balance);
+            emit AccessAccountCreated(msg.sender, AccountType.access, balance);
             
             return newAccountAddress;
             
