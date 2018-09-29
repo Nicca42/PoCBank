@@ -67,7 +67,6 @@ contract DelayAccount {
     function deposit(uint _amount)
         public 
         payable
-        onlyOwner(msg.sender)
         //TODO: lockAccount
     {
         balance += msg.value;
