@@ -1,6 +1,8 @@
 pragma solidity ^0.4.24;
 
 import "./AccessAccount.sol";
+import "./DelayAccount.sol";
+import "./TrustAccount.sol";
 
 contract Bank {
     
@@ -17,6 +19,8 @@ contract Bank {
     mapping(address => bool) userWalletLocks;
     
     event AccessAccountCreated(address _owner, AccountType _accountType, uint _initialBalance);
+    event DelayAccountCreated(address _owner, AccountType _accountType, uint _initialBalance);
+    event TrustAccountCreated(address _initailOwner, AccountType _accountType, uint _initialBalance);
     event LogEvent(string _pointInCode, address _addressOFContract);
     
     /**
@@ -101,28 +105,48 @@ contract Bank {
         // isLocked(msg.sender)
         returns(address)    
     {
+        uint balance = msg.value;
         if(_chosenType == 1){
             // access account
             address newAccountAddress = new AccessAccount(this, msg.sender);
-            uint balance = msg.value;
-            AccessAccount newAccount = AccessAccount(newAccountAddress);
-            newAccount.deposit.value(msg.value)(balance);
+            AccessAccount accessAccount = AccessAccount(newAccountAddress);
+            accessAccount.deposit.value(msg.value)(balance);
             userWallets[msg.sender] = AccountDetails({
                 owner: msg.sender,
                 bankAccount: newAccountAddress,
                 typeOfAccount: AccountType.access
             });
-            
             emit AccessAccountCreated(msg.sender, AccountType.access, balance);
-            
             return newAccountAddress;
             
         } else if(_chosenType == 2){
-        //     //delay, 30 days, account 
-            
+            //delay, 30 days, account 
+            address newDelayAccountAddress = new DelayAccount(this, msg.sender);
+            DelayAccount delayAccount = DelayAccount(newDelayAccountAddress);
+            delayAccount.deposit.value(msg.value)(balance);
+            userWallets[msg.sender] = AccountDetails({
+                owner: msg.sender,
+                bankAccount: newDelayAccountAddress,
+                typeOfAccount: AccountType.delay
+            });
+            emit DelayAccountCreated(msg.sender, AccountType.delay, balance);
+            return newDelayAccountAddress;
+
         } else if(_chosenType == 3){
-        //     //trust account
-            
+            //trust account
+            // mapping (address => bool) accountOwners;
+            // accountOwners[msg.sender] = true;
+            address newTrustAccountAddress = new TrustAccount(msg.sender, this);
+            TrustAccount trustAccount = TrustAccount(newTrustAccountAddress);
+            trustAccount.deposit.value(msg.value)(balance);
+            userWallets[msg.sender] = AccountDetails({
+                owner: msg.sender,
+                bankAccount: newTrustAccountAddress,
+                typeOfAccount: AccountType.trust
+            });
+            emit TrustAccountCreated(msg.sender, AccountType.trust, balance);
+            return newTrustAccountAddress;
+
         } else {
         //     //no account was identified
             

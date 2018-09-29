@@ -24,7 +24,6 @@ contract('System test', function(accounts) {
 
     beforeEach(async function () {
         bank = await Bank.new({from: bankOwner});
-        console.log("Created bank...>>>");
     })
 
     /**
@@ -51,7 +50,46 @@ contract('System test', function(accounts) {
         assert.equal(bankAccountBalance, 1000, "Bank account balance is 1000");
     });
 
-    it("", async () => {
-        
+    it("Creating Delay Account test", async () => {
+        await bank.createBankAccount(2, {from: delayAccountOwner});
+        let bankAccountAddress = await bank.getBankAccountAddress(delayAccountOwner, {from: bankOwner});
+
+        //checking address is not blank
+        assert.notEqual(bankAccountAddress, 0x0, "Returned bank account address is real");
     });
+
+    it("Creating Delay Account with funds tests", async () => {
+        await bank.createBankAccount(2, {from: delayAccountOwner, value: 1000});
+        let bankAccountAddress = await bank.getBankAccountAddress(delayAccountOwner, {from: bankOwner});
+
+        let delayAccountContact = await AccessAccount.at(bankAccountAddress);
+        let bankAccountBalance = await delayAccountContact.viewBalance({from: delayAccountOwner});
+
+        //checking address is not blank
+        assert.notEqual(bankAccountAddress, 0x0, "Returned bank account address is real");
+        //checking bank balance is the amount send with 
+        assert.equal(bankAccountBalance, 1000, "Bank account balance is 1000");
+    });
+
+    it("Creating Trust Account tests", async () => {
+        await bank.createBankAccount(3, {from: trustAccountOwner});
+        let bankAccountAddress = await bank.getBankAccountAddress(trustAccountOwner, {from: bankOwner});
+
+        //checking address is not blank
+        assert.notEqual(bankAccountAddress, 0x0, "Returned bank account address is real");
+    });
+
+    it("Creating Trust Account with funds tests", async () => {
+        await bank.createBankAccount(3, {from: trustAccountOwner, value: 1000});
+        let bankAccountAddress = await bank.getBankAccountAddress(trustAccountOwner, {from: bankOwner});
+
+        let trustAccountContact = await AccessAccount.at(bankAccountAddress);
+        let bankAccountBalance = await trustAccountContact.viewBalance({from: trustAccountOwner});
+
+        //checking address is not blank
+        assert.notEqual(bankAccountAddress, 0x0, "Returned bank account address is real");
+        //checking bank balance is the amount send with 
+        assert.equal(bankAccountBalance, 1000, "Bank account balance is 1000");
+    });
+
 })

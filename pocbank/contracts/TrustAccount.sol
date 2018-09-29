@@ -1,8 +1,9 @@
 pragma solidity ^0.4.24;
 
-contract SharedTrustAccount {
-    address[] owners;
+contract TrustAccount {
+    mapping (address => bool) accountOwners;
     address bank;
+    uint balance;
     
     enum VoteTypes {dissolve, freeze, withdraw, addOwner, deleteOwner}
     struct OwnerVotes {
@@ -12,7 +13,7 @@ contract SharedTrustAccount {
     }
     struct voteDetails{
         VoteTypes vote;
-        address[] owners;
+        mapping (address => bool) owners;
         OwnerVotes ifVotedForTypes;
         bool[] votes;
         bool compleated;
@@ -20,8 +21,8 @@ contract SharedTrustAccount {
     
     voteDetails[] internal historyOfVotes;
     
-    modifier onlyOwners(address isOwner){
-        //TODO: if the address is an owner, dont fail
+    modifier onlyOwner(address isOwner){
+        require(isOwner == bank || accountOwners[isOwner] == true, "Must be owner");
         _;
     }
     
@@ -30,16 +31,12 @@ contract SharedTrustAccount {
         _;
     }
     
-    constructor(address[] _owners, address _bank)
+    constructor(address _initialOwners, address _bank)
     {
         //TODO: 
-        // if(owners.length  < 50){
-        //     owners = _owners;
-        //     bank = _bank;
-        //     //return true;
-        // } else {
-        //     //return false;
-        // }
+        // accountOwners = _owners;
+        accountOwners[_initialOwners] = true;
+        bank = _bank;
     }
     
     /**
@@ -47,7 +44,7 @@ contract SharedTrustAccount {
     */
     function vote(VoteTypes _voteType, bool _against)
         public
-        onlyOwners(msg.sender)
+        onlyOwner(msg.sender)
         haveNotVoted(msg.sender)
         returns(bool)
     {
@@ -66,5 +63,25 @@ contract SharedTrustAccount {
         //TODO: check in the history of all the others for:
             //TODO: any vote after a dissolve 
             //TODO: no votes during a freeze 
+    }
+
+    function deposit(uint _amount)
+        public 
+        payable
+        onlyOwner(msg.sender)
+        //TODO: lockAccount
+    {
+        balance += msg.value;
+        //TODO: lockAccount();
+        //TODO: unlockAccount();
+    }
+    
+    function viewBalance()
+        public
+        view
+        onlyOwner(msg.sender)
+        returns(uint)
+    {
+        return balance;
     }
 }

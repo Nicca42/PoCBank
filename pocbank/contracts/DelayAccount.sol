@@ -18,22 +18,22 @@ contract DelayAccount {
     WithdrawRequest[] allWithdrawRequests;
     
     //TODO: modifier isOwner
-    modifier isOwner(address _owner){
-        require(owner == _owner || bank == _owner);
+    modifier onlyOwner(address isOwner){
+        require(isOwner == owner || isOwner == bank, "Must be owner");
         _;
     }
     
     /**
-     @param _owners : the addresses of the 2 owners of this contract
+     @param _owner : the addresses of the 2 owners of this contract
     */
-    constructor(address _owners, address _bank) {
-        owner = _owners;
+    constructor(address _owner, address _bank) {
+        owner = _owner;
         bank = _bank;
     }
     
     function requestWithdraw(uint _amount) 
         public
-        isOwner(msg.sender)
+        onlyOwner(msg.sender)
         returns(uint)
     {
         //TODO: balance =- _amount;
@@ -46,7 +46,7 @@ contract DelayAccount {
     function withdraw(uint _amount)
         public
         payable 
-        isOwner(msg.sender)
+        onlyOwner(msg.sender)
         returns(uint)
     {
         //TODO: check if the withdraw history if anywithdraw is not compelaed,
@@ -57,19 +57,30 @@ contract DelayAccount {
     
     function isWithdrawPossible()
         public 
-        isOwner(msg.sender)
+        onlyOwner(msg.sender)
         returns(bool)
     {
         //TODO: check if the address can withdraw this amount 
         return true;
     }
-    
+
     function deposit(uint _amount)
-        public
-        payable 
+        public 
+        payable
+        onlyOwner(msg.sender)
+        //TODO: lockAccount
     {
-        //TODO: lock both parties in system.
-        //TODO: take eth given, check it against the _amount
-        //TODO: change balance 
+        balance += msg.value;
+        //TODO: lockAccount();
+        //TODO: unlockAccount();
+    }
+
+    function viewBalance()
+        public
+        view
+        onlyOwner(msg.sender)
+        returns(uint)
+    {
+        return balance;
     }
 }

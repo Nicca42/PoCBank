@@ -11,7 +11,7 @@ contract AccessAccount {
     event LogEvent(string _description, uint _choice, address _thisAddress);
         
     modifier onlyOwner(address isOwner){
-        require(isOwner == owner || isOwner == bank);
+        require(isOwner == owner || isOwner == bank, "Must be owner");
         _;
     }
     
