@@ -77,6 +77,15 @@ contract AccessAccount{
         return balance;
     }
 
+    function getOwner()
+        public
+        view
+        isOwner()
+        returns(address)
+    {
+        return onwerAddress;
+    }
+
     /**
       * @dev freezed the account. The isFrozen() is used to ensure an already
       *     frozen account cannot be frozen again.

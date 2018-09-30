@@ -22,11 +22,6 @@ contract('Access Account Tests', function(accounts) {
     const delayAccountOwner = accounts[3];
     const trustAccountOwner = accounts[4];
 
-    // beforeEach(async function () {
-    //     bank = await Bank.new({from: bankOwner});
-    //     // let bankAddress = bank.address;
-    // });
-
     it("(Access)Testing the creation of an account via the contract", async() => {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
         let accessAccountAddress = accessAccount.address;
@@ -41,7 +36,7 @@ contract('Access Account Tests', function(accounts) {
 
     it("(Access)Testing freeze", async() => {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
-        let accessAccountAddress = accessAccount.address;
+        let accessAccountAddress = await accessAccount.address;
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
 
         let lockedBefore = await accessAccountContact.getFrozen();
@@ -54,9 +49,9 @@ contract('Access Account Tests', function(accounts) {
         assert.equal(locked, true, "Checking lock status is true")
 
         //test 3: contract cannot deposit when locked
-        assertRevert(accessAccountContact.deposit({value: 200}), EVMRevert);
+        await assertRevert(accessAccountContact.deposit({value: 200}), EVMRevert);
         //test 4: contract cannot withdraw when locked
-        assertRevert(accessAccountContact.withdraw(20, {from: accessAccountOwner}), EVMRevert);
+        await assertRevert(accessAccountContact.withdraw(20, {from: accessAccountOwner}), EVMRevert);
 
         await accessAccountContact.defrost({from: userWallet});
         let unlocked = await accessAccountContact.getFrozen();
@@ -67,7 +62,7 @@ contract('Access Account Tests', function(accounts) {
 
     it("(Access)Testing deposit", async() => {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
-        let accessAccountAddress = accessAccount.address;
+        let accessAccountAddress = await accessAccount.address;
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
 
         let balanceBefore = await accessAccountContact.getBalance({from: accessAccountOwner});
@@ -78,7 +73,7 @@ contract('Access Account Tests', function(accounts) {
         assert.notEqual(balanceBefore, balanceAfter, "Checking balance changed");
         
         //test 2: contract cannot hold more value then limit 
-        assertRevert(accessAccountContact.deposit({value: 10}), EVMRevert);
+        await assertRevert(accessAccountContact.deposit({value: 10}), EVMRevert);
 
         await accessAccountContact.deposit({value: 1});
         let balance = await accessAccountContact.getBalance({from: accessAccountOwner});
@@ -89,7 +84,7 @@ contract('Access Account Tests', function(accounts) {
 
     it("(Access)Testing withdraw", async() => {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
-        let accessAccountAddress = accessAccount.address;
+        let accessAccountAddress = await accessAccount.address;
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
         let balanceBefore = await accessAccountContact.getBalance({from: accessAccountOwner});
         await accessAccountContact.deposit({value: 1000});
@@ -106,21 +101,67 @@ contract('Access Account Tests', function(accounts) {
 
     it("(Access)Testing the owner only functions", async() => {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
-        let accessAccountAddress = accessAccount.address;
+        let accessAccountAddress = await accessAccount.address;
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
 
         let balance = await accessAccountContact.getBalance({from: accessAccountOwner});
 
         //test 2: checks isOwner() function
-        assertRevert(accessAccountContact.freeze({from: trustAccountOwner}), EVMRevert);
+        await assertRevert(accessAccountContact.freeze({from: trustAccountOwner}), EVMRevert);
         //test 3: checks isOwner() function
-        assertRevert(accessAccountContact.defrost({from: trustAccountOwner}), EVMRevert);
+        await assertRevert(accessAccountContact.defrost({from: trustAccountOwner}), EVMRevert);
         //test 4: checks isBank() funcution
-        assertRevert(accessAccountContact.dissolve({from: trustAccountOwner}), EVMRevert);
+        await assertRevert(accessAccountContact.dissolve({from: trustAccountOwner}), EVMRevert);
         //test 5: checks isBank() function
-        assertRevert(accessAccountContact.changeOwner(trustAccountOwner, {from: trustAccountOwner}), EVMRevert);
+        await assertRevert(accessAccountContact.changeOwner(trustAccountOwner, {from: trustAccountOwner}), EVMRevert);
         //test 6: checks isOwner() function
-        assertRevert(accessAccountContact.withdraw(200, {from: trustAccountOwner}), EVMRevert);
+        await assertRevert(accessAccountContact.withdraw(200, {from: trustAccountOwner}), EVMRevert);
+    });
+
+    it("(Access)Testing changing of ownership", async() => {
+        let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
+        let accessAccountAddress = await accessAccount.address;
+        let accessAccountContact = await AccessAccount.at(accessAccountAddress);
+        await accessAccountContact.deposit({value: 1000});
+
+        let owner = await accessAccountContact.getOwner({from: accessAccountOwner});
+        await accessAccountContact.changeOwner(trustAccountOwner, {from: userWallet});
+        let ownerAfter = await accessAccountContact.getOwner({from: trustAccountOwner});
+
+        //test 1: contracts owner has changed
+        assert.notEqual(owner, ownerAfter, "Owners address has changed"); 
+
+        let lockBefore = await accessAccountContact.getFrozen();
+        await accessAccountContact.freeze({from: trustAccountOwner});
+        let lock = await accessAccountContact.getFrozen();
+
+        //test 2: contracts lock state changes
+        assert.notEqual(lockBefore, lock, "Lock status has changed");
+
+        //test 3: contract lock state is now true
+        assert.equal(lock, true, "Account is now locked");
+    });
+
+    it("(Access)Testing dissolve", async() => {
+        let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
+        let accessAccountAddress = await accessAccount.address;
+        let accessAccountContact = await AccessAccount.at(accessAccountAddress);
+
+        await accessAccountContact.dissolve({from: userWallet});
+
+        //test 1: becuse this throws a 
+            //'ttempting to run transaction which calls a contract function, 
+            //but recipient address ... is not a contract address'
+            //it is surrounded in a try catch
+        try {
+            await accessAccountContact.freeze({from: userWallet});
+            //if it works it should never reach here
+            assert.equal(true, false, "");
+        } catch(e) {
+            //when the .freeze() fails it should skip the assert and this should run
+            assert.equal(true, true, "");
+        }
+            
     });
 
 })
