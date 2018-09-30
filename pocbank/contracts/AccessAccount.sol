@@ -110,8 +110,8 @@ contract AccessAccount{
         isBank()
     {
         dissolved = true;
-        onwerAddress.transfer(balance);
         frozen =  true;
+        selfdestruct(onwerAddress);
     }
 
     /**

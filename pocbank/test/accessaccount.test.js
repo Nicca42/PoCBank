@@ -91,16 +91,11 @@ contract('Access Account Tests', function(accounts) {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
         let accessAccountAddress = accessAccount.address;
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
-        console.log("1");
         let balanceBefore = await accessAccountContact.getBalance({from: accessAccountOwner});
         await accessAccountContact.deposit({value: 1000});
         let balanceAfter = await accessAccountContact.getBalance({from: accessAccountOwner});
-        console.log("2");
-        console.log(balanceAfter)
         await accessAccountContact.withdraw(200, {from: accessAccountOwner});
         let balance = await accessAccountContact.getBalance({from: accessAccountOwner});
-        
-        console.log("3");
 
         //test 1: contract can be deposited into
         assert.notEqual(balanceBefore, balanceAfter, "Checing balance changed with deposit");
@@ -116,8 +111,16 @@ contract('Access Account Tests', function(accounts) {
 
         let balance = await accessAccountContact.getBalance({from: accessAccountOwner});
 
-        //test 1: contract 
-        assertRevert(accessAccountContact.getBalance({from: trustAccountOwner}), EVMRevert);
+        //test 2: checks isOwner() function
+        assertRevert(accessAccountContact.freeze({from: trustAccountOwner}), EVMRevert);
+        //test 3: checks isOwner() function
+        assertRevert(accessAccountContact.defrost({from: trustAccountOwner}), EVMRevert);
+        //test 4: checks isBank() funcution
+        assertRevert(accessAccountContact.dissolve({from: trustAccountOwner}), EVMRevert);
+        //test 5: checks isBank() function
+        assertRevert(accessAccountContact.changeOwner(trustAccountOwner, {from: trustAccountOwner}), EVMRevert);
+        //test 6: checks isOwner() function
+        assertRevert(accessAccountContact.withdraw(200, {from: trustAccountOwner}), EVMRevert);
     });
 
 })
