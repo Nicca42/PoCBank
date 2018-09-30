@@ -19,12 +19,12 @@ contract AccessAccount {
     }
     
     modifier frozonCheck() {
-        require(frozen == false, "Account is frozon. Please unfreeze");
-        // Bank bankOb = Bank(bank);
-        emit LogEvent("before getting if the account is frozen from bank", 1, this);
-        // bool isFrozenInBank = bankOb.isAccountFrozen();
-        // emit LogBool("is frozen...: ", isFrozenInBank);
-        // require(isFrozenInBank == false, "Account is frozon. Please unfreeze");
+        require(!frozen, "Account is frozon. Please unfreeze");
+        Bank bankOb = Bank(bank);
+        bool isFrozenInBank = bankOb.isAccountFrozen(owner);
+        emit LogBool("is frozen in bank", isFrozenInBank);
+        require(!isFrozenInBank, "Account is frozon. Please unfreeze");
+        emit LogBool("is frozen in bank after req", isFrozenInBank);
         _;
     }
         
@@ -67,18 +67,21 @@ contract AccessAccount {
         public
         payable
         frozonCheck()
-        onlyOwner(msg.sender)
+        // onlyOwner(msg.sender)
         returns(uint)
     {
         freezeAccount();
+        emit LogBool("after modifier inside withdraw", true);
 
         require(_amount < balance, "Cannot withdraw more than balance");
         require(balance - _amount > 0, "Cannot make balance negative");
-        require(frozen == true);
+
+        emit LogBool("after requires in withdraw", true);
 
         balance -= _amount;
         owner.transfer(_amount);
-        
+
+        emit LogBool("after withdrawing and paying owner", true);
         unfreezeAccount();
 
         return balance;
