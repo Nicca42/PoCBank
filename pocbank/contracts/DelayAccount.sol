@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
 //TODO: imports
+import "./Bank.sol";
 
 contract DelayAccount {
     address owner;
@@ -22,6 +23,14 @@ contract DelayAccount {
         require(isOwner == owner || isOwner == bank, "Must be owner");
         _;
     }
+
+    modifier frozonCheck() {
+        require(!frozen, "Account is frozon. Please unfreeze");
+        Bank bankOb = Bank(bank);
+        bool isFrozenInBank = bankOb.isAccountFrozen(owner);
+        require(!isFrozenInBank, "Account is frozon. Please unfreeze");
+        _;
+    }
     
     /**
      @param _owner : the addresses of the 2 owners of this contract
@@ -31,7 +40,7 @@ contract DelayAccount {
         bank = _bank;
     }
 
-     function freezeAccount()
+    function freezeAccount()
         public
         onlyOwner(msg.sender)
         returns(bool)

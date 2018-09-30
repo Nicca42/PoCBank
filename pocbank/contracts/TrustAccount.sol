@@ -1,7 +1,10 @@
 pragma solidity ^0.4.24;
 
+import "./Bank.sol";
+
 contract TrustAccount {
     mapping (address => bool) accountOwners;
+    address[] accountOwnersList;
     address bank;
     uint balance;
     bool frozen = false;
@@ -27,10 +30,18 @@ contract TrustAccount {
         _;
     }
     
-    modifier haveNotVoted(address owner){
+    modifier hasVoted(address owner, VoteTypes _vote){
         //TODO: if the owner has not voted on this vote, dont fail
         _;
     }
+
+    // modifier frozonCheck() {
+    //     require(!frozen, "Account is frozon. Please unfreeze");
+    //     Bank bankOb = Bank(bank);
+    //     bool isFrozenInBank = bankOb.isAccountFrozen(accountOwners[]);
+    //     require(!isFrozenInBank, "Account is frozon. Please unfreeze");
+    //     _;
+    // }
     
     constructor(address _initialOwners, address _bank)
     {
@@ -66,7 +77,7 @@ contract TrustAccount {
     function vote(VoteTypes _voteType, bool _against)
         public
         onlyOwner(msg.sender)
-        haveNotVoted(msg.sender)
+        hasVoted(msg.sender, _voteType)
         returns(bool)
     {
         //TODO: lock them for this specific vote type

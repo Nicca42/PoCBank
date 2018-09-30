@@ -22,6 +22,7 @@ contract Bank {
     event DelayAccountCreated(address _owner, AccountType _accountType, uint _initialBalance);
     event TrustAccountCreated(address _initailOwner, AccountType _accountType, uint _initialBalance);
     event LogEvent(string _pointInCode, address _addressOFContract);
+    event LogProgress(string _desc, address _address, bool _passing);
     
     /**
         @param userWallet : the address of the new users wallet.
@@ -30,21 +31,6 @@ contract Bank {
     */
     modifier isLocked(address userWallet) {
         require(userWalletLocks[userWallet] != true);
-        if(userWallets[userWallet].bankAccount != 0x0){
-            if(userWallets[userWallet].typeOfAccount == AccountType.access){
-                //access account 
-                 AccessAccount isLockedAccount = AccessAccount(userWallets[userWallet].bankAccount);
-                 require(isLockedAccount.isLocked() != true);
-            } else if(userWallets[userWallet].typeOfAccount == AccountType.delay){
-                //delay, 30 days, account
-                
-            } else if(userWallets[userWallet].typeOfAccount == AccountType.trust){
-                //trust account
-                
-            } else {
-                //user accoutn not identified
-            }
-        }
         _;
     }
 
@@ -85,12 +71,15 @@ contract Bank {
         userWalletLocks[_toLock] = true;
     }
     
-    function unlockUser(address _toUnlock)
+    function unlockAddress(address _toUnlock)
         public
         isOwner(msg.sender)
     {
+        // emit LogProgress("(bank) before checking account is locked", _toUnlock, true);
         require(userWalletLocks[_toUnlock] == true, "User wallet aready unlocked");
+        // emit LogProgress("(bank) after checking account is locked", _toUnlock, true);
         userWalletLocks[_toUnlock] == false;
+        // emit LogProgress("(bank) User account now unlocked", _toUnlock, true);
     }
     
     /**
@@ -104,7 +93,7 @@ contract Bank {
     function createBankAccount(uint8 _chosenType) 
         public
         payable
-        // isLocked(msg.sender)
+        isLocked(msg.sender)
         returns(address)    
     {
         uint balance = msg.value;
@@ -136,8 +125,6 @@ contract Bank {
 
         } else if(_chosenType == 3){
             //trust account
-            // mapping (address => bool) accountOwners;
-            // accountOwners[msg.sender] = true;
             address newTrustAccountAddress = new TrustAccount(msg.sender, this);
             TrustAccount trustAccount = TrustAccount(newTrustAccountAddress);
             trustAccount.deposit.value(msg.value)(balance);
@@ -170,62 +157,26 @@ contract Bank {
     {
         lockStatus = userWalletLocks[_ownerOfAccount];
     }
-
-    event LogProgress(string _progressPoint, address _address);
-
-    // function lockAccount(address _userWalletAddressToLock)
-    //     public
-    //     isOwner(msg.sender)
-    // {
-    //     address usersAccount = userWallets[_userWalletAddressToLock].bankAccount;
-    //     emit LogProgress("user account: ", usersAccount);
-    //     require(usersAccount != 0x0, "Account must exist in system");
-    //     emit LogProgress("account is not 0x0", usersAccount);
-    //     lockAddress(_userWalletAddressToLock);
-    //     // AccountType usersAccountType = userWallets[_userWalletAddressToLock].typeOfAccount;
-    //     // if(usersAccountType == AccountType.access){
-    //     //     AccessAccount userAccountAccess = AccessAccount(usersAccount);
-    //     //     userAccountAccess.freezeAccount();
-    //     // } else if(usersAccountType == AccountType.delay){
-    //     //     DelayAccount userAccountDelay = DelayAccount(usersAccount);
-    //     //     userAccountDelay.freezeAccount();
-    //     // } else if(usersAccountType == AccountType.trust){
-    //     //     // TrustAccount userAccountTrust = TrustAccount(usersAccount);
-    //     //     // userAccountTrust.freezeAccount();
-    //     // } else {
-    //     //     // assert(false);
-    //     // }
-    // }
-    
-    // function unlockAccount(address _userWalletAddressToUnlock)
-    //     public
-    //     isOwner(msg.sender)
-    // {
-    //    address usersAccount = userWallets[_userWalletAddressToUnlock].bankAccount;
-    //     require(usersAccount != 0x0, "Account must exist in system");
-    //     lockAddress(_userWalletAddressToLock);
-    //     // AccountType usersAccountType = userWallets[_userWalletAddressToUnlock].typeOfAccount;
-    //     // if(usersAccountType == AccountType.access){
-    //     //     AccessAccount userAccountAccess = AccessAccount(usersAccount);
-    //     //     userAccountAccess.unfreezeAccount();
-    //     // } else if(usersAccountType == AccountType.delay){
-    //     //     // DelayAccount userAccountDelay = DelayAccount(usersAccount);
-    //     //     // userAccountDelay.unfreezeAccount();
-    //     // } else if(usersAccountType == AccountType.trust){
-    //     //     // TrustAccount userAccountTrust = TrustAccount(usersAccount);
-    //     //     // userAccountTrust.unfreezeAccount();
-    //     // } else {
-    //     //     // assert(false);
-    //     // }
-    // }
     
     function changeOwnership(address _newAddress, address _oldAddress)
         public
         returns(bool)
     {
-        //TODO: require( _bankAccount is real);
-        //TODO: require( the msg.sender is an owner
-        //TODO: replace the old user with the new one. 
+        lockAddress(_oldAddress);
+
+        require(userWallets[_oldAddress].owner != 0x0, "User has no linked account");
+        require(msg.sender == userWallets[_oldAddress].owner || msg.sender == owner, "Function can only be called by owner");
+       
+        address bankAccountAddress = userWallets[_oldAddress].bankAccount;
+        
+
+        userWallets[_newAddress].owner = _newAddress;
+        userWallets[_newAddress].bankAccount = userWallets[_oldAddress].bankAccount;
+        userWallets[_newAddress].typeOfAccount = userWallets[_oldAddress].typeOfAccount;
+
+        userWallets[_oldAddress].owner = 0x0;
+        userWallets[_oldAddress].bankAccount = 0x0;
+
         return true;
     }
     
@@ -259,7 +210,7 @@ contract Bank {
             //from list
         //TODO: delete account 
         //TODO: move remaning funds to the fundsReciver
-        unlockUser(msg.sender);
+        unlockAddress(msg.sender);
         return true;
     }
     

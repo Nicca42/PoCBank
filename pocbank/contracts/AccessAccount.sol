@@ -19,12 +19,13 @@ contract AccessAccount {
     }
     
     modifier frozonCheck() {
+        // emit LogBool("(access) before checking frozen", frozen);
         require(!frozen, "Account is frozon. Please unfreeze");
         Bank bankOb = Bank(bank);
         bool isFrozenInBank = bankOb.isAccountFrozen(owner);
-        emit LogBool("is frozen in bank", isFrozenInBank);
+        // emit LogBool("(access) after frozen, before bank lock", isFrozenInBank);
         require(!isFrozenInBank, "Account is frozon. Please unfreeze");
-        emit LogBool("is frozen in bank after req", isFrozenInBank);
+        // emit LogBool("(access) after bank lock", isFrozenInBank);
         _;
     }
         

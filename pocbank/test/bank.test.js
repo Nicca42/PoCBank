@@ -66,7 +66,6 @@ contract('Bank Tests', function(accounts) {
     });
 
     it("(Access)Test freezing account by bank.", async() => {
-        let bankContractAddress = bank.address;
         await bank.createBankAccount(1, {from: accessAccountOwner, value: 1000});
         let bankAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
         let accessAccountContact = await AccessAccount.at(bankAccountAddress);
@@ -77,10 +76,10 @@ contract('Bank Tests', function(accounts) {
     });
 
     it("(Access)Test unfreezing acount by bank.", async() => {
-        let bankContractAddress = await bank.address;
         await bank.createBankAccount(1, {from: accessAccountOwner, value: 1000});
         let bankAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
         let accessAccountContact = await AccessAccount.at(bankAccountAddress);
+
         let balance = await accessAccountContact.viewBalance({from: accessAccountOwner});
         console.log(balance);
         await bank.lockAddress(accessAccountOwner, {from: bankOwner});
@@ -88,13 +87,31 @@ contract('Bank Tests', function(accounts) {
         //checks the withdraw function fails when account is frozen
         await expectThrow(accessAccountContact.withdraw(100, {from: accessAccountOwner}), EVMRevert);
 
-        await bank.unlockUser(accessAccountOwner, {from: bankOwner});
+        await bank.unlockAddress(accessAccountOwner, {from: bankOwner});
         await accessAccountContact.withdraw(100, {from: accessAccountOwner});
         let balanceAfter = await accessAccountContact.viewBalance({from: accessAccountOwner});
         console.log(balanceAfter);
 
         //checks the account is unfrozen and trasactions can occur
-        // assert.equal(balance["c"][0] - 100, balanceAfter, "Account can perform transactions after unfreezing");
+        assert.equal(balance["c"][0] - 100, balanceAfter, "Account can perform transactions after unfreezing");
+    });
+
+    
+    it("(Bank)Test the ability to change owner for access account", async() => {
+        await bank.createBankAccount(1, {from: accessAccountOwner, value: 1000});
+        let bankAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
+        let accessAccountContact = await AccessAccount.at(bankAccountAddress);
+        console.log("<<<...before getting balance");
+        let balance = await accessAccountContact.viewBalance({from: accessAccountOwner});
+        console.log("<<<... after getting balance: ");
+        console.log(balance);
+        await bank.changeOwnership(userWallet, accessAccountOwner);
+        console.log("<<<... after changing ownership");
+        assertRevert(accessAccountContact.viewBalance({from: accessAccountOwner}), EVMRevert);
+        console.log("<<<... After checking it reverts on calling from old address");
+        let balanceAfter = await accessAccountContact.viewBalance({from: userWallet});
+        console.log("<<<... getting balance off new user");
+        assert.equal(balance, balanceAfter, "Can access balance with new account owner");
     });
 
 /**
