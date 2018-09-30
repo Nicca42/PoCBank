@@ -11,6 +11,7 @@ contract AccessAccount{
     AccountType thisAccountType;
 
     event LogCreatedAccessAcount(address _owner, address _bank);
+    event LogUnexpectedRevert(string _where);
 
     /**
       * @dev checks that the msg.sender is an owner of the contract
@@ -92,7 +93,7 @@ contract AccessAccount{
     /**
       * @dev unfreezes account. Manually checks the account is not dissolved. 
       */
-    function unfreeze()
+    function defrost()
         public 
         isOwner()
     {
@@ -129,7 +130,7 @@ contract AccessAccount{
         require(thisAccountType != AccountType.trust, "Please use changeOwner function in trust contract");
         onwerAddress = _newOwnerAddress;
 
-        unfreeze();
+        defrost();
     }
 
     /**
@@ -148,6 +149,8 @@ contract AccessAccount{
         balance += msg.value;
     }
 
+    
+
     /**
       * @param _amount : the amount to be withdrawn 
       * @dev only allows the owner(s) to withdraw. Dose not allow use if account is frozen 
@@ -161,12 +164,24 @@ contract AccessAccount{
     {
         freeze();
 
+        emit LogUnexpectedRevert("(in withdraw) after freezing account");
+
         require(thisAccountType != AccountType.trust, "Please use withdraw function in trust contract");
-        require(thisAccountType != AccountType.delay, "Please use withdraw function in delay contract");
-        require(_amount < balance, "Cannot withdraw more funds than available");
+
+        emit LogUnexpectedRevert("(after 1 require) after trust require");
+
+        // require(thisAccountType != AccountType.delay, "Please use withdraw function in delay contract");
+
+        emit LogUnexpectedRevert("(after 2 require) after delay require");
+
+        require(_amount <= balance, "Cannot withdraw more funds than available");
+
+        emit LogUnexpectedRevert("(after 3 require) after amount gets checked against balance");
+
         balance -= _amount;
         onwerAddress.transfer(_amount);
 
-        unfreeze();
+        emit LogUnexpectedRevert("() after transfering amount");
+        defrost();
     }
 }

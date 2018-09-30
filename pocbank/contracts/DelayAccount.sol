@@ -2,9 +2,7 @@ pragma solidity ^0.4.24;
 
 import "./AccessAccount.sol";
 
-contract DelayAccount is AccessAccount(
-
-    ) {
+contract DelayAccount is AccessAccount {
     struct WithdrawRequests {
         uint timeRequested;
         uint amountRequested;
@@ -39,7 +37,7 @@ contract DelayAccount is AccessAccount(
     {
         AccessAccount.freeze();
 
-        require(balance > _amount, "Cannot withdraw more than balance");
+        require(balance >= _amount, "Cannot withdraw more than balance");
         uint currentRequsetNo = numberOfRequests++;
         requests[currentRequsetNo] = WithdrawRequests({
             timeRequested: now,
@@ -48,7 +46,7 @@ contract DelayAccount is AccessAccount(
         });
         balance -= _amount;
 
-        AccessAccount.unfreeze();
+        AccessAccount.defrost();
         return currentRequsetNo;
     }
     
@@ -74,6 +72,6 @@ contract DelayAccount is AccessAccount(
         requests[_requestNo].withdrawn = true;
         _to.transfer(requests[_requestNo].amountRequested);
 
-        AccessAccount.unfreeze();
+        AccessAccount.defrost();
     }
 }

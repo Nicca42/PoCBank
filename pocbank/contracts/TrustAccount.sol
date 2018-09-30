@@ -75,7 +75,7 @@ contract TrustAccount is AccessAccount {
                 }
             }
 
-        AccessAccount.unfreeze();
+        AccessAccount.defrost();
     }
 
     /**
@@ -93,10 +93,10 @@ contract TrustAccount is AccessAccount {
 
         require(thisAccountType != AccountType.trust, "Please use withdraw function in trust contract");
         require(thisAccountType != AccountType.delay, "Please use withdraw function in delay contract");
-        require(_amount < balance, "Cannot withdraw more funds than available");
+        require(_amount <= balance, "Cannot withdraw more funds than available");
         balance -= _amount;
         onwerAddress.transfer(_amount);
 
-        AccessAccount.unfreeze();
+        AccessAccount.defrost();
     }
 }

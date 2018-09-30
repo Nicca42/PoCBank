@@ -7,7 +7,9 @@ import "./TrustAccount.sol";
 contract Bank {
     address owner;
 
-    constructor(){
+    constructor()
+        public
+    {
         owner = msg.sender;
     }
 }

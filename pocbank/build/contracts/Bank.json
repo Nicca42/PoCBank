@@ -1,20 +1,27 @@
 {
   "contractName": "Bank",
-  "abi": [],
-  "bytecode": "0x6080604052348015600f57600080fd5b50603580601d6000396000f3006080604052600080fd00a165627a7a72305820b53352e9c7de25884762ac50a1b98fc59a3a12996eb3d6fb0a11c94c23c123ed0029",
-  "deployedBytecode": "0x6080604052600080fd00a165627a7a72305820b53352e9c7de25884762ac50a1b98fc59a3a12996eb3d6fb0a11c94c23c123ed0029",
-  "sourceMap": "61:20:1:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;61:20:1;;;;;;;",
-  "deployedSourceMap": "61:20:1:-;;;;;",
-  "source": "pragma solidity ^0.4.24;\r\n\r\nimport \"./AccessAccount.sol\";\r\n\r\ncontract Bank {\r\n\r\n}",
+  "abi": [
+    {
+      "inputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    }
+  ],
+  "bytecode": "0x6080604052348015600f57600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550603580605d6000396000f3006080604052600080fd00a165627a7a72305820508d356c5a1468706bf06df07584ecd793b16b054003e041c1c8c0d9a8d365fc0029",
+  "deployedBytecode": "0x6080604052600080fd00a165627a7a72305820508d356c5a1468706bf06df07584ecd793b16b054003e041c1c8c0d9a8d365fc0029",
+  "sourceMap": "121:96:1:-;;;164:50;8:9:-1;5:2;;;30:1;27;20:12;5:2;164:50:1;196:10;188:5;;:18;;;;;;;;;;;;;;;;;;121:96;;;;;;",
+  "deployedSourceMap": "121:96:1:-;;;;;",
+  "source": "pragma solidity ^0.4.24;\r\n\r\nimport \"./AccessAccount.sol\";\r\nimport \"./DelayAccount.sol\";\r\nimport \"./TrustAccount.sol\";\r\n\r\ncontract Bank {\r\n    address owner;\r\n\r\n    constructor(){\r\n        owner = msg.sender;\r\n    }\r\n}",
   "sourcePath": "C:\\Users\\Veronica Coutts\\Desktop\\Desktop\\Work\\LinumLabs\\PoCBank\\pocbank\\contracts\\Bank.sol",
   "ast": {
     "absolutePath": "/C/Users/Veronica Coutts/Desktop/Desktop/Work/LinumLabs/PoCBank/pocbank/contracts/Bank.sol",
     "exportedSymbols": {
       "Bank": [
-        309
+        322
       ]
     },
-    "id": 310,
+    "id": 323,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -33,9 +40,31 @@
         "file": "./AccessAccount.sol",
         "id": 308,
         "nodeType": "ImportDirective",
-        "scope": 310,
+        "scope": 323,
         "sourceUnit": 306,
         "src": "28:29:1",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/C/Users/Veronica Coutts/Desktop/Desktop/Work/LinumLabs/PoCBank/pocbank/contracts/DelayAccount.sol",
+        "file": "./DelayAccount.sol",
+        "id": 309,
+        "nodeType": "ImportDirective",
+        "scope": 323,
+        "sourceUnit": 506,
+        "src": "59:28:1",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/C/Users/Veronica Coutts/Desktop/Desktop/Work/LinumLabs/PoCBank/pocbank/contracts/TrustAccount.sol",
+        "file": "./TrustAccount.sol",
+        "id": 310,
+        "nodeType": "ImportDirective",
+        "scope": 323,
+        "sourceUnit": 803,
+        "src": "89:28:1",
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -45,27 +74,151 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 309,
+        "id": 322,
         "linearizedBaseContracts": [
-          309
+          322
         ],
         "name": "Bank",
         "nodeType": "ContractDefinition",
-        "nodes": [],
-        "scope": 310,
-        "src": "61:20:1"
+        "nodes": [
+          {
+            "constant": false,
+            "id": 312,
+            "name": "owner",
+            "nodeType": "VariableDeclaration",
+            "scope": 322,
+            "src": "142:13:1",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 311,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "142:7:1",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 320,
+              "nodeType": "Block",
+              "src": "177:37:1",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 318,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 315,
+                      "name": "owner",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 312,
+                      "src": "188:5:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 316,
+                        "name": "msg",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 817,
+                        "src": "196:3:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_magic_message",
+                          "typeString": "msg"
+                        }
+                      },
+                      "id": 317,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "sender",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": null,
+                      "src": "196:10:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "188:18:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 319,
+                  "nodeType": "ExpressionStatement",
+                  "src": "188:18:1"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 321,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 313,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "175:2:1"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 314,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "177:0:1"
+            },
+            "scope": 322,
+            "src": "164:50:1",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 323,
+        "src": "121:96:1"
       }
     ],
-    "src": "0:81:1"
+    "src": "0:217:1"
   },
   "legacyAST": {
     "absolutePath": "/C/Users/Veronica Coutts/Desktop/Desktop/Work/LinumLabs/PoCBank/pocbank/contracts/Bank.sol",
     "exportedSymbols": {
       "Bank": [
-        309
+        322
       ]
     },
-    "id": 310,
+    "id": 323,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -84,9 +237,31 @@
         "file": "./AccessAccount.sol",
         "id": 308,
         "nodeType": "ImportDirective",
-        "scope": 310,
+        "scope": 323,
         "sourceUnit": 306,
         "src": "28:29:1",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/C/Users/Veronica Coutts/Desktop/Desktop/Work/LinumLabs/PoCBank/pocbank/contracts/DelayAccount.sol",
+        "file": "./DelayAccount.sol",
+        "id": 309,
+        "nodeType": "ImportDirective",
+        "scope": 323,
+        "sourceUnit": 506,
+        "src": "59:28:1",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/C/Users/Veronica Coutts/Desktop/Desktop/Work/LinumLabs/PoCBank/pocbank/contracts/TrustAccount.sol",
+        "file": "./TrustAccount.sol",
+        "id": 310,
+        "nodeType": "ImportDirective",
+        "scope": 323,
+        "sourceUnit": 803,
+        "src": "89:28:1",
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -96,18 +271,142 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 309,
+        "id": 322,
         "linearizedBaseContracts": [
-          309
+          322
         ],
         "name": "Bank",
         "nodeType": "ContractDefinition",
-        "nodes": [],
-        "scope": 310,
-        "src": "61:20:1"
+        "nodes": [
+          {
+            "constant": false,
+            "id": 312,
+            "name": "owner",
+            "nodeType": "VariableDeclaration",
+            "scope": 322,
+            "src": "142:13:1",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 311,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "142:7:1",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 320,
+              "nodeType": "Block",
+              "src": "177:37:1",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 318,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 315,
+                      "name": "owner",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 312,
+                      "src": "188:5:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 316,
+                        "name": "msg",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 817,
+                        "src": "196:3:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_magic_message",
+                          "typeString": "msg"
+                        }
+                      },
+                      "id": 317,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "sender",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": null,
+                      "src": "196:10:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "188:18:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 319,
+                  "nodeType": "ExpressionStatement",
+                  "src": "188:18:1"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 321,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 313,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "175:2:1"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 314,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "177:0:1"
+            },
+            "scope": 322,
+            "src": "164:50:1",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 323,
+        "src": "121:96:1"
       }
     ],
-    "src": "0:81:1"
+    "src": "0:217:1"
   },
   "compiler": {
     "name": "solc",
@@ -122,5 +421,5 @@
     }
   },
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-09-30T15:06:26.757Z"
+  "updatedAt": "2018-09-30T15:20:08.624Z"
 }
