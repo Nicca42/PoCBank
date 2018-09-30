@@ -20,6 +20,14 @@ contract AccessAccount{
         _;
     }
 
+    /**
+      * @dev checks that the bank is the only address able of using the function
+      */
+    modifier isBank() {
+        require(msg.sender == bankAddress, "Function only usable by bank");
+        _;
+    }
+
     /** 
       * @dev checks the account is not frozen, and that the account is not dissolved 
       */
@@ -94,11 +102,11 @@ contract AccessAccount{
     }
 
     /**
-      * @dev lets the owner dissolve account, sending all funds to the owner
+      * @dev lets the bank dissolve account, sending all funds to the owner
       */
     function dissolve()
         public
-        isOwner()
+        isBank()
     {
         dissolved = true;
         onwerAddress.transfer(balance);
@@ -113,7 +121,7 @@ contract AccessAccount{
       */
     function changeOwner(address _newOwnerAddress)
         public
-        isOwner()
+        isBank()
         isFrozen()
     {
         freeze();

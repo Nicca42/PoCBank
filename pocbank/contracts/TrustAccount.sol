@@ -4,8 +4,32 @@ import "./AccessAccount.sol";
 
 contract TrustAccount is AccessAccount {
     address[] owners;
+    uint noOfOwners = 0;
+    struct OwnerDetails {
+        bool isOwner;
+        address ownerWallet;
+    }
+    mapping(uint => OwnerDetails) allOwners;
 
     event LogCreatedTrustAccount(address[] owners, address _bank, uint _limit);
+
+    modifier isOwner() {
+        uint temp = noOfOwners;
+        if(msg.sender == AccessAccount.bankAddress){
+            //checks the msg.sender is the bank, if it is it skipps the next check
+        } else {
+            //checks the user is not one of the other owners, fails if it runs out of 
+            //owners tocheck.
+            for(uint i = temp; i > 0; i++){
+                if(allOwners[temp].ownerWallet == msg.sender){
+                    require(allOwners[temp].isOwner == true, "Owner is not active");
+                    require(temp >= 0, "Function only usable by owner");
+                    break;
+                }
+            }
+        }
+        _;
+    }
 
     constructor(address _owner, address[] _owners, uint _limit)
         AccessAccount(_owner, AccessAccount.AccountType.trust, _limit)
@@ -14,7 +38,14 @@ contract TrustAccount is AccessAccount {
         AccessAccount.onwerAddress = _owner;
         bankAddress = msg.sender;
         AccessAccount.accountLimit = _limit;
-        owners = _owners;
+        uint noOfOwnersInArray = _owners.length;
+        for(uint i = 0; i < noOfOwnersInArray; i++){
+            allOwners[noOfOwners] = OwnerDetails({
+                isOwner: true,
+                ownerWallet: _owners[0]
+            });
+            noOfOwners++;
+        }
         emit LogCreatedTrustAccount(_owners, msg.sender, _limit);
     }
 
@@ -24,17 +55,27 @@ contract TrustAccount is AccessAccount {
       *     The require ensures that this function cannot be called on the trust account
       *     from the parent function (this function).
       */
-    function changeOwner(address _newOwnerAddress)
+    function changeOwner(address _newOwnerAddress, address _oldOwnerAddress)
         public
         isOwner()
         isFrozen()
     {
-        freeze();
+        AccessAccount.freeze();
 
-        require(thisAccountType != AccountType.trust, "Please use changeOwner function in trust contract");
-        onwerAddress = _newOwnerAddress;
+        uint temp = noOfOwners;
+        if(allOwners[temp].ownerWallet == _oldOwnerAddress){
+            allOwners[temp].ownerWallet = _newOwnerAddress;
+            require(temp > 0, "Old Owner Address Not recognised");
+        }
+        for(uint i = temp; i > 0; i++){
+                if(allOwners[temp].ownerWallet == _oldOwnerAddress){
+                    require(allOwners[temp].isOwner == true, "Owner is not active");
+                    require(temp >= 0, "Function only usable by owner");
+                    break;
+                }
+            }
 
-        unfreeze();
+        AccessAccount.unfreeze();
     }
 
     /**
@@ -48,7 +89,7 @@ contract TrustAccount is AccessAccount {
         isOwner()
         isFrozen()
     {
-        freeze();
+        AccessAccount.freeze();
 
         require(thisAccountType != AccountType.trust, "Please use withdraw function in trust contract");
         require(thisAccountType != AccountType.delay, "Please use withdraw function in delay contract");
@@ -56,6 +97,6 @@ contract TrustAccount is AccessAccount {
         balance -= _amount;
         onwerAddress.transfer(_amount);
 
-        unfreeze();
+        AccessAccount.unfreeze();
     }
 }

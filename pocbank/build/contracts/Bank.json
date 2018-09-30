@@ -1,8 +1,8 @@
 {
   "contractName": "Bank",
   "abi": [],
-  "bytecode": "0x6080604052348015600f57600080fd5b50603580601d6000396000f3006080604052600080fd00a165627a7a72305820f001ff7345d7b6e14f05b897f6f03c31ba46e073c795faa379b602684b8bd00f0029",
-  "deployedBytecode": "0x6080604052600080fd00a165627a7a72305820f001ff7345d7b6e14f05b897f6f03c31ba46e073c795faa379b602684b8bd00f0029",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603580601d6000396000f3006080604052600080fd00a165627a7a72305820b53352e9c7de25884762ac50a1b98fc59a3a12996eb3d6fb0a11c94c23c123ed0029",
+  "deployedBytecode": "0x6080604052600080fd00a165627a7a72305820b53352e9c7de25884762ac50a1b98fc59a3a12996eb3d6fb0a11c94c23c123ed0029",
   "sourceMap": "61:20:1:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;61:20:1;;;;;;;",
   "deployedSourceMap": "61:20:1:-;;;;;",
   "source": "pragma solidity ^0.4.24;\r\n\r\nimport \"./AccessAccount.sol\";\r\n\r\ncontract Bank {\r\n\r\n}",
@@ -11,14 +11,14 @@
     "absolutePath": "/C/Users/Veronica Coutts/Desktop/Desktop/Work/LinumLabs/PoCBank/pocbank/contracts/Bank.sol",
     "exportedSymbols": {
       "Bank": [
-        297
+        309
       ]
     },
-    "id": 298,
+    "id": 310,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 295,
+        "id": 307,
         "literals": [
           "solidity",
           "^",
@@ -31,10 +31,10 @@
       {
         "absolutePath": "/C/Users/Veronica Coutts/Desktop/Desktop/Work/LinumLabs/PoCBank/pocbank/contracts/AccessAccount.sol",
         "file": "./AccessAccount.sol",
-        "id": 296,
+        "id": 308,
         "nodeType": "ImportDirective",
-        "scope": 298,
-        "sourceUnit": 294,
+        "scope": 310,
+        "sourceUnit": 306,
         "src": "28:29:1",
         "symbolAliases": [],
         "unitAlias": ""
@@ -45,14 +45,14 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 297,
+        "id": 309,
         "linearizedBaseContracts": [
-          297
+          309
         ],
         "name": "Bank",
         "nodeType": "ContractDefinition",
         "nodes": [],
-        "scope": 298,
+        "scope": 310,
         "src": "61:20:1"
       }
     ],
@@ -62,14 +62,14 @@
     "absolutePath": "/C/Users/Veronica Coutts/Desktop/Desktop/Work/LinumLabs/PoCBank/pocbank/contracts/Bank.sol",
     "exportedSymbols": {
       "Bank": [
-        297
+        309
       ]
     },
-    "id": 298,
+    "id": 310,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 295,
+        "id": 307,
         "literals": [
           "solidity",
           "^",
@@ -82,10 +82,10 @@
       {
         "absolutePath": "/C/Users/Veronica Coutts/Desktop/Desktop/Work/LinumLabs/PoCBank/pocbank/contracts/AccessAccount.sol",
         "file": "./AccessAccount.sol",
-        "id": 296,
+        "id": 308,
         "nodeType": "ImportDirective",
-        "scope": 298,
-        "sourceUnit": 294,
+        "scope": 310,
+        "sourceUnit": 306,
         "src": "28:29:1",
         "symbolAliases": [],
         "unitAlias": ""
@@ -96,14 +96,14 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 297,
+        "id": 309,
         "linearizedBaseContracts": [
-          297
+          309
         ],
         "name": "Bank",
         "nodeType": "ContractDefinition",
         "nodes": [],
-        "scope": 298,
+        "scope": 310,
         "src": "61:20:1"
       }
     ],
@@ -122,5 +122,5 @@
     }
   },
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-09-30T13:37:53.738Z"
+  "updatedAt": "2018-09-30T15:06:26.757Z"
 }
