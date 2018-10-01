@@ -45,19 +45,30 @@ contract('Access Account Tests', function(accounts) {
 
         //test 1: contract lock state changes
         assert.notEqual(lockedBefore, locked, "Chekcing the contracts lock state changes");
+
         //test 2: contract lock state is locked (true)
         assert.equal(locked, true, "Checking lock status is true")
 
         //test 3: contract cannot deposit when locked
         await assertRevert(accessAccountContact.deposit({value: 200}), EVMRevert);
+
         //test 4: contract cannot withdraw when locked
         await assertRevert(accessAccountContact.withdraw(20, {from: accessAccountOwner}), EVMRevert);
 
         await accessAccountContact.defrost({from: userWallet});
         let unlocked = await accessAccountContact.getFrozen();
 
+        //test 5: contract unlocked is the same as pre lock
         assert.equal(lockedBefore, unlocked, "Checking the contract can be unlocked to the same state");
+
+        //test 6: contract lock status is now false 
         assert.equal(unlocked, false, "Checking lock status is false");
+
+        await accessAccountContact.deposit({value: 200});
+        let balance = await accessAccountContact.getBalance();
+
+        //test 7: contract balance increased after unlocked
+        assert.equal(balance, 200, "Checking account balance increases by 200");
     });
 
     it("(Access)Testing deposit", async() => {
