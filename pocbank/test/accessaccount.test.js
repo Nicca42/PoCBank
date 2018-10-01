@@ -168,8 +168,7 @@ contract('Access Account Tests', function(accounts) {
         } catch(e) {
             //when the .freeze() fails it should skip the assert and this should run
             assert.equal(true, true, "");
-        }
-            
+        }  
     });
 
 })

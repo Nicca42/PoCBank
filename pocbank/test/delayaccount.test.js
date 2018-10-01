@@ -106,7 +106,7 @@ contract('Delay Account Tests', function(accounts) {
         let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
         let delayAccountAddress = await delayAccount.address;
         let delayAccountContact = await DelayAccount.at(delayAccountAddress);
-        await delayAccountContact.deposit({value: 3999});
+        await delayAccountContact.deposit({value: 400});
         await delayAccountContact.requestWithdraw(300, trustAccountOwner, {from: delayAccountOwner});
 
         //test 1: contract cannot call withdraw in access acount (parent contract)
@@ -118,12 +118,55 @@ contract('Delay Account Tests', function(accounts) {
         //changing the current time to 30 days in the future
         let nowTime = await latestTime();
         let afterEndingTime = await nowTime + duration.days(30);
-        console.log(afterEndingTime);
         await increaseTimeTo(afterEndingTime);
         await delayAccountContact.withdraw(1, {from: delayAccountOwner});
+        let balance = await delayAccountContact.getBalance({from: delayAccountOwner});
 
-        //test 2: contract can withdraw amount after time has passed
-        
+        //test 3: contract balance changes after withdraw 
+        assert.equal(balance, 100, "Checking balance has changed and is correct after withdraw");
+    });
+
+    it("(Delay)Testing changing of ownership", async() => {
+        let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
+        let delayAccountAddress = await delayAccount.address;
+        let delayAccountContact = await DelayAccount.at(delayAccountAddress);
+        await delayAccountContact.deposit({value: 1000});
+        let owner = await delayAccountContact.getOwner({from: delayAccountOwner});
+        await delayAccountContact.changeOwner(trustAccountOwner, {from: userWallet});
+        let ownerAfter = await delayAccountContact.getOwner({from: trustAccountOwner});
+
+        //test 1: contracts owner has changed
+        assert.notEqual(owner, ownerAfter, "Owners address has changed"); 
+
+        let lockBefore = await delayAccountContact.getFrozen();
+        await delayAccountContact.freeze({from: trustAccountOwner});
+        let lock = await delayAccountContact.getFrozen();
+
+        //test 2: contracts lock state changes
+        assert.notEqual(lockBefore, lock, "Lock status has changed");
+
+        //test 3: contract lock state is now true
+        assert.equal(lock, true, "Account is now locked");
+    });
+
+    it("(Delay)Testing dissolve", async() => {
+        let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
+        let delayAccountAddress = await delayAccount.address;
+        let delayAccountContact = await DelayAccount.at(delayAccountAddress);
+        await delayAccountContact.dissolve({from: userWallet});
+
+        //test 1: becuse this throws a 
+            //'ttempting to run transaction which calls a contract function, 
+            //but recipient address ... is not a contract address'
+            //it is surrounded in a try catch
+        try {
+            await delayAccountContact.freeze({from: userWallet});
+            //if it works it should never reach here
+            assert.equal(true, false, "");
+        } catch(e) {
+            //when the .freeze() fails it should skip the assert and this should run
+            assert.equal(true, true, "");
+        }  
     });
 
 })
