@@ -107,29 +107,21 @@ contract('Delay Account Tests', function(accounts) {
         let delayAccountAddress = await delayAccount.address;
         let delayAccountContact = await DelayAccount.at(delayAccountAddress);
         await delayAccountContact.deposit({value: 3999});
-        let requestNo = await delayAccountContact.requestWithdraw(300, trustAccountOwner, {from: delayAccountOwner});
-        // console.log(requestNo["c"][0]);
+        await delayAccountContact.requestWithdraw(300, trustAccountOwner, {from: delayAccountOwner});
 
         //test 1: contract cannot call withdraw in access acount (parent contract)
-        // await assertRevert(delayAccountContact.withdraw(300, {from: delayAccountOwner}), EVMRevert);
+        await assertRevert(delayAccountContact.withdraw(300, {from: delayAccountOwner}), EVMRevert);
 
-        console.log("0");
-        // await delayAccountContact.withdraw(trustAccountOwner, requestNo["c"][0], {from: delayAccountOwner})
-        console.log("0.1");
         //test 2: checking the account cannot withdraw before time has passed
         await assertRevert(delayAccountContact.withdraw(1, {from: delayAccountOwner}), EVMRevert);
 
-        console.log("1");
+        //changing the current time to 30 days in the future
         let nowTime = await latestTime();
-        console.log("2");
-        let afterEndingTime = nowTime + duration.days(31);
-        console.log("3");
+        let afterEndingTime = await nowTime + duration.days(30);
+        console.log(afterEndingTime);
         await increaseTimeTo(afterEndingTime);
-        console.log("4");
-        await delayAccountContact.withdraw(trustAccountOwner, requestNo, {from: delayAccountOwner});
-        console.log("5");
-        let balance = await trustAccountOwner.balance;
-        console.log(balance);
+        await delayAccountContact.withdraw(1, {from: delayAccountOwner});
+
         //test 2: contract can withdraw amount after time has passed
         
     });

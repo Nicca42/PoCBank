@@ -14,7 +14,6 @@ contract DelayAccount is AccessAccount {
     mapping(uint => WithdrawRequests) requests;
 
     event LogCreatedDelayAccount(address _owner, address _bank, AccessAccount.AccountType _chosenAccount);
-    event LogAccountTypes(string _accType, AccessAccount.AccountType _chosenAccount);
 
     constructor(address _owner, uint _limit)
         AccessAccount(_owner, AccessAccount.AccountType.delay, _limit)
@@ -24,9 +23,6 @@ contract DelayAccount is AccessAccount {
         bankAddress = msg.sender;
         AccessAccount.accountLimit = _limit;
         emit LogCreatedDelayAccount(_owner, msg.sender, AccessAccount.AccountType.delay);
-        emit LogAccountTypes("access", AccessAccount.AccountType.access);
-        emit LogAccountTypes("delay", AccessAccount.AccountType.delay);
-        emit LogAccountTypes("trust", AccessAccount.AccountType.trust);
     }
 
     /**
@@ -77,7 +73,7 @@ contract DelayAccount is AccessAccount {
         require(_requestNo <= numberOfRequests, "No such request exists");
         uint _timeRequested = requests[_requestNo].timeRequested;
         //30 (days) x 24 (hours in a day) x 60 (minutes in a hour) x 60 (seconds in a minute) = 2 592 000
-        require(_timeRequested + 2592000 > now, "30 days have not passed");
+        require(_timeRequested + 2592000 < now, "30 days have not passed");
         require(requests[_requestNo].withdrawn == false, "Amount already been withdrawn");
         requests[_requestNo].withdrawn = true;
         address _to = requests[_requestNo].to;
