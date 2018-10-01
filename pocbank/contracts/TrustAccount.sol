@@ -31,11 +31,15 @@ contract TrustAccount is AccessAccount {
         _;
     }
 
+    /**
+      * @dev the constructor sets the owner in the access account to the bank as 
+      *     all the owners need equal status and replacability. 
+      */
     constructor(address _owner, address[] _owners, uint _limit)
-        AccessAccount(_owner, AccessAccount.AccountType.trust, _limit)
+        AccessAccount(msg.sender, AccessAccount.AccountType.trust, _limit)
         public
     {
-        AccessAccount.onwerAddress = _owner;
+        AccessAccount.onwerAddress = msg.sender;
         bankAddress = msg.sender;
         AccessAccount.accountLimit = _limit;
         uint noOfOwnersInArray = _owners.length;

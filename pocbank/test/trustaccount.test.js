@@ -11,8 +11,6 @@ const {
     assertRevert 
 } = require('./helpers/assertRevert');
 
-var Bank = artifacts.require("./Bank.sol");
-var AccessAccount = artifacts.require("./AccessAccount.sol");
 var TrustAccount = artifacts.require("./TrustAccount.sol");
 
 contract('Trust Account Tests', function(accounts) {
@@ -23,8 +21,20 @@ contract('Trust Account Tests', function(accounts) {
     const delayAccountOwner = accounts[3];
     const trustAccountOwner = accounts[4];
 
-    beforeEach(async function () {
-        bank = await Bank.new({from: bankOwner});
+    it("(Access)Testing the creation of an account via the contract", async() => {
+        let allOwners = [0x0, 0x0, 0x0];
+        let trustAccount = await TrustAccount.new(trustAccountOwner, allOwners, 4000, {from: userWallet});
+        let trustAccountAddress = trustAccount.address;
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress);
+        let balance = await trustAccountContact.getBalance({from: trustAccountOwner});
+        let locked = await trustAccountContact.getFrozen();
+
+        //test 1: contract can access balance
+        assert.equal(balance, 0, "Chekcing access account functions, getbalance()");
+
+        //test 2: contract can access frozen status
+        assert.equal(locked, false, "CHecking access account functions, getFrozen()");
     });
+
 
 })
