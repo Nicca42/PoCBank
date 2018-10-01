@@ -10,7 +10,7 @@ contract AccessAccount{
     enum AccountType {access, delay, trust}
     AccountType thisAccountType;
 
-    event LogCreatedAccessAcount(address _owner, address _bank);
+    event LogCreatedAccessAcount(address _owner, address _bank, AccountType _accountType);
     event LogUnexpectedRevert(string _where);
 
     /**
@@ -52,7 +52,7 @@ contract AccessAccount{
         accountLimit = _limit;
         frozen = false;
         dissolved = false;
-        emit LogCreatedAccessAcount(_owner, msg.sender);
+        emit LogCreatedAccessAcount(_owner, msg.sender, _chosenType);
     }
 
     /**
@@ -175,17 +175,13 @@ contract AccessAccount{
 
         emit LogUnexpectedRevert("(in withdraw) after freezing account");
 
-        require(thisAccountType != AccountType.trust, "Please use withdraw function in trust contract");
+        require(thisAccountType == AccountType.access, "Please use withdraw function in child contract");
 
-        emit LogUnexpectedRevert("(after 1 require) after trust require");
-
-        // require(thisAccountType != AccountType.delay, "Please use withdraw function in delay contract");
-
-        emit LogUnexpectedRevert("(after 2 require) after delay require");
+        emit LogUnexpectedRevert("(after 1 require) after trust/delay require");
 
         require(_amount <= balance, "Cannot withdraw more funds than available");
 
-        emit LogUnexpectedRevert("(after 3 require) after amount gets checked against balance");
+        emit LogUnexpectedRevert("(after 2 require) after amount gets checked against balance");
 
         balance -= _amount;
         onwerAddress.transfer(_amount);

@@ -10,6 +10,16 @@ const {
 const { 
     assertRevert 
 } = require('./helpers/assertRevert');
+const {
+    advanceBlock
+} = require('./helpers/advanceToBlock');
+const {
+    increaseTimeTo,
+    duration
+} = require('./helpers/increaseTime');
+const {
+    latestTime
+} = require('./helpers/latestTime');
 
 var DelayAccount = artifacts.require("./DelayAccount.sol");
 
@@ -25,7 +35,6 @@ contract('Delay Account Tests', function(accounts) {
         let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
         let delayAccountAddress = await delayAccount.address;
         let delayAccountContact = await DelayAccount.at(delayAccountAddress);
-
         let balance = await delayAccountContact.getBalance({from: delayAccountOwner});
         let locked = await delayAccountContact.getFrozen();
 
@@ -40,7 +49,6 @@ contract('Delay Account Tests', function(accounts) {
         let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
         let delayAccountAddress = await delayAccount.address;
         let delayAccountContact = await DelayAccount.at(delayAccountAddress);
-
         let frozenBefore = await delayAccountContact.getFrozen();
         await delayAccountContact.freeze({from: delayAccountOwner});
         let locked = await delayAccountContact.getFrozen();
@@ -71,6 +79,59 @@ contract('Delay Account Tests', function(accounts) {
 
         //test 7: contract balance increased after unlocked
         assert.equal(balance, 200, "Checking account balance increases by 200");
+    });
+
+    it("(Delay)Testing deposit", async() => {
+        let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
+        let delayAccountAddress = await delayAccount.address;
+        let delayAccountContact = await DelayAccount.at(delayAccountAddress);
+        let balanceBefore = await delayAccountContact.getBalance({from: delayAccountOwner});
+        await delayAccountContact.deposit({value: 3999});
+        let balanceAfter = await delayAccountContact.getBalance({from: delayAccountOwner});
+
+        //test 1: contracts balance changes with deposit
+        assert.notEqual(balanceBefore, balanceAfter, "Checking balance changed");
+        
+        //test 2: contract cannot hold more value then limit 
+        await assertRevert(delayAccountContact.deposit({value: 10}), EVMRevert);
+
+        await delayAccountContact.deposit({value: 1});
+        let balance = await delayAccountContact.getBalance({from: delayAccountOwner});
+
+        //test 3: contract can hold the limit
+        assert.equal(balance, 4000, "Checking account can hold limit");
+    });
+
+    it("(Delay)Testing withdraw", async() => {
+        let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
+        let delayAccountAddress = await delayAccount.address;
+        let delayAccountContact = await DelayAccount.at(delayAccountAddress);
+        await delayAccountContact.deposit({value: 3999});
+        let requestNo = await delayAccountContact.requestWithdraw(300, trustAccountOwner, {from: delayAccountOwner});
+        // console.log(requestNo["c"][0]);
+
+        //test 1: contract cannot call withdraw in access acount (parent contract)
+        // await assertRevert(delayAccountContact.withdraw(300, {from: delayAccountOwner}), EVMRevert);
+
+        console.log("0");
+        // await delayAccountContact.withdraw(trustAccountOwner, requestNo["c"][0], {from: delayAccountOwner})
+        console.log("0.1");
+        //test 2: checking the account cannot withdraw before time has passed
+        await assertRevert(delayAccountContact.withdraw(1, {from: delayAccountOwner}), EVMRevert);
+
+        console.log("1");
+        let nowTime = await latestTime();
+        console.log("2");
+        let afterEndingTime = nowTime + duration.days(31);
+        console.log("3");
+        await increaseTimeTo(afterEndingTime);
+        console.log("4");
+        await delayAccountContact.withdraw(trustAccountOwner, requestNo, {from: delayAccountOwner});
+        console.log("5");
+        let balance = await trustAccountOwner.balance;
+        console.log(balance);
+        //test 2: contract can withdraw amount after time has passed
+        
     });
 
 })

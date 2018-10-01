@@ -23,19 +23,21 @@ contract('Access Account Tests', function(accounts) {
     const trustAccountOwner = accounts[4];
 
     it("(Access)Testing the creation of an account via the contract", async() => {
-        let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
+        let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = accessAccount.address;
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
-
         let balance = await accessAccountContact.getBalance({from: accessAccountOwner});
         let locked = await accessAccountContact.getFrozen();
 
+        //test 1: contract can access balance
         assert.equal(balance, 0, "Chekcing access account functions, getbalance()");
+
+        //test 2: contract can access frozen status
         assert.equal(locked, false, "CHecking access account functions, getFrozen()");
     });
 
     it("(Access)Testing freeze", async() => {
-        let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
+        let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = await accessAccount.address;
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
 
@@ -72,10 +74,9 @@ contract('Access Account Tests', function(accounts) {
     });
 
     it("(Access)Testing deposit", async() => {
-        let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
+        let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = await accessAccount.address;
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
-
         let balanceBefore = await accessAccountContact.getBalance({from: accessAccountOwner});
         await accessAccountContact.deposit({value: 3999});
         let balanceAfter = await accessAccountContact.getBalance({from: accessAccountOwner});
@@ -94,7 +95,7 @@ contract('Access Account Tests', function(accounts) {
     });
 
     it("(Access)Testing withdraw", async() => {
-        let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
+        let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = await accessAccount.address;
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
         let balanceBefore = await accessAccountContact.getBalance({from: accessAccountOwner});
@@ -111,11 +112,9 @@ contract('Access Account Tests', function(accounts) {
     });
 
     it("(Access)Testing the owner only functions", async() => {
-        let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
+        let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = await accessAccount.address;
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
-
-        let balance = await accessAccountContact.getBalance({from: accessAccountOwner});
 
         //test 2: checks isOwner() function
         await assertRevert(accessAccountContact.freeze({from: trustAccountOwner}), EVMRevert);
@@ -130,11 +129,10 @@ contract('Access Account Tests', function(accounts) {
     });
 
     it("(Access)Testing changing of ownership", async() => {
-        let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
+        let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = await accessAccount.address;
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
         await accessAccountContact.deposit({value: 1000});
-
         let owner = await accessAccountContact.getOwner({from: accessAccountOwner});
         await accessAccountContact.changeOwner(trustAccountOwner, {from: userWallet});
         let ownerAfter = await accessAccountContact.getOwner({from: trustAccountOwner});
@@ -154,10 +152,9 @@ contract('Access Account Tests', function(accounts) {
     });
 
     it("(Access)Testing dissolve", async() => {
-        let accessAccount = await AccessAccount.new(accessAccountOwner, 1, 4000, {from: userWallet});
+        let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = await accessAccount.address;
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
-
         await accessAccountContact.dissolve({from: userWallet});
 
         //test 1: becuse this throws a 
