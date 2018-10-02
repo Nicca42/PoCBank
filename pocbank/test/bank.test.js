@@ -39,6 +39,12 @@ contract('Bank Tests', function(accounts) {
 
         //test 1: contract is created and can be read from
         assert.equal(lock, false, "Checking access acount created and can be accessed");
+
+        await bank.lockAddress(accessAccountOwner, {from: bankOwner});
+        let locked = await accessAccountContract.getFrozen();
+
+        //test 2: contract can be accessed
+        assert.equal(locked, true, "Checking access account can be used");
     });
 
     it("(Bank)Testing creation of a delay account through the bank", async() => {
@@ -49,17 +55,32 @@ contract('Bank Tests', function(accounts) {
 
         //test 1: contract is created and can be read from
         assert.equal(lock, false, "Checking delay account was created and can be accessed");
+
+        await bank.lockAddress(delayAccountOwner, {from: bankOwner});
+        let locked = await delayAccountContract.getFrozen();
+
+        //test 2: contract can be accessed
+        assert.equal(locked, true, "Checking access delay can be used");
     });
 
     it("(Bank)Testing creation of trust account through the bank", async() => {
-        // let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
-        // await bank.creatingTrustAccount(owners, {from: userWallet});
-        // let trustAccountAddress = await bank.getTrustAccountAddress(1, {from: bankOwner});
-        // let trustAccountContract = await TrustAccount.at(trustAccountAddress);
-        // let lock = await trustAccountContract.getFrozen();
+        let owners = [trustAccountOwnerOne, bankOwner, trustAccountOwnerThree, trustAccountOwnerFour];
+        await bank.creatingTrustAccount(owners, {from: userWallet});
+        let trustAccountAddress = await bank.getTrustAccountAddress(0, {from: bankOwner});
+        let trustAccountContract = await TrustAccount.at(trustAccountAddress);
+        let lock = await trustAccountContract.getFrozen();
 
-        // //test 1: contract is created and can be read from
-        // assert.equal(lock, false, "Checking trust account was created and can be accessed");
+        //test 1: contract is created and can be read from
+        assert.equal(lock, false, "Checking trust account was created and can be accessed");
+
+        let ownersTwo = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree];
+        await bank.creatingTrustAccount(ownersTwo, {from: bankOwner});
+        let trustAccountAddressTwo = await bank.getTrustAccountAddress(1, {from: bankOwner});
+        let trustAccountContractTwo = await TrustAccount.at(trustAccountAddressTwo);
+        let lockTwo = await trustAccountContractTwo.getFrozen();
+
+        //test 1: contract is created and can be read from
+        assert.equal(lockTwo, false, "Checking trust account was created and can be accessed");
     });
 
     it("(Bank)Testing freezing of access account", async() => {
@@ -81,11 +102,25 @@ contract('Bank Tests', function(accounts) {
     });
 
     it("(Bank)Testing freezing of delay account", async() => {
+        await bank.creatingDelayAccount({from: delayAccountOwner});
+        let delayAccountAddress = await bank.getBankAccountAddress(delayAccountOwner, {from: bankOwner});
+        let delayAccountContract = await DelayAccount.at(delayAccountAddress);
+        let lock = await delayAccountContract.getFrozen();
+        bank.lockAccount(delayAccountOwner, {from: bankOwner});
+        let locked = await delayAccountContract.getFrozen();
 
+        //test 1: contract frozen state changed
+        assert.notEqual(lock, locked, "Checking the accounts frozen status has changed");
+
+        //test 2: contract frozen state now true
+        assert.equal(locked, true, "Checking the contract is now locked");
+
+        //test 3: contract cannot perform frozen sensitive functions
+        assertRevert(delayAccountContract.deposit({value: 300}), EVMRevert);
     });
 
     it("(Bank)Testing freezing of trust account", async() => {
-
+        
     });
 
     it("(Bank)Testing changing of access account ownership", async() => {
