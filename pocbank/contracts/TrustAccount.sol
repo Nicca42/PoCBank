@@ -35,7 +35,7 @@ contract TrustAccount is AccessAccount {
       * @dev the constructor sets the owner in the access account to the bank as 
       *     all the owners need equal status and replacability. 
       */
-    constructor(address _owner, address[] _owners, uint _limit)
+    constructor(address[] _owners, uint _limit)
         AccessAccount(msg.sender, AccessAccount.AccountType.trust, _limit)
         public
     {

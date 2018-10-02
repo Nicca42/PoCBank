@@ -6,7 +6,6 @@ contract AccessAccount{
     uint balance;
     uint accountLimit;
     bool frozen;
-    bool dissolved;
     enum AccountType {access, delay, trust}
     AccountType thisAccountType;
 
@@ -34,7 +33,6 @@ contract AccessAccount{
       */
     modifier isFrozen() {
         require(frozen == false, "Account is frozen");
-        assert(!dissolved);
         _;
     }
 
@@ -51,7 +49,6 @@ contract AccessAccount{
         thisAccountType = _chosenType;
         accountLimit = _limit;
         frozen = false;
-        dissolved = false;
         emit LogCreatedAccessAcount(_owner, msg.sender, _chosenType);
     }
 
@@ -95,7 +92,6 @@ contract AccessAccount{
         isOwner()
         isFrozen()
     {
-        assert(dissolved == false);
         frozen = true;
     }
 
@@ -106,7 +102,6 @@ contract AccessAccount{
         public 
         isOwner()
     {
-        assert(dissolved == false);
         require(frozen == true, "Account already unfrozen");
         frozen = false;
     }
@@ -118,7 +113,6 @@ contract AccessAccount{
         public
         isBank()
     {
-        dissolved = true;
         frozen =  true;
         selfdestruct(onwerAddress);
     }

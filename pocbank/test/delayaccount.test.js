@@ -117,7 +117,8 @@ contract('Delay Account Tests', function(accounts) {
 
         //changing the current time to 30 days in the future
         let nowTime = await latestTime();
-        let afterEndingTime = await nowTime + duration.days(30);
+        //just after then delay time of the withdraw period
+        let afterEndingTime = await nowTime + duration.days(30) + duration.minutes(30);
         await increaseTimeTo(afterEndingTime);
         await delayAccountContact.withdraw(1, {from: delayAccountOwner});
         let balance = await delayAccountContact.getBalance({from: delayAccountOwner});

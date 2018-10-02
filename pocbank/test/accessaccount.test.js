@@ -33,7 +33,7 @@ contract('Access Account Tests', function(accounts) {
         assert.equal(balance, 0, "Chekcing access account functions, getbalance()");
 
         //test 2: contract can access frozen status
-        assert.equal(locked, false, "CHecking access account functions, getFrozen()");
+        assert.equal(locked, false, "Checking access account functions, getFrozen()");
     });
 
     it("(Access)Testing freeze", async() => {

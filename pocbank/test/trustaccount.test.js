@@ -21,20 +21,20 @@ contract('Trust Account Tests', function(accounts) {
     const delayAccountOwner = accounts[3];
     const trustAccountOwner = accounts[4];
 
-    it("(Access)Testing the creation of an account via the contract", async() => {
-        let allOwners = [0x0, 0x0, 0x0];
-        let trustAccount = await TrustAccount.new(trustAccountOwner, allOwners, 4000, {from: userWallet});
-        let trustAccountAddress = trustAccount.address;
-        let trustAccountContact = await TrustAccount.at(trustAccountAddress);
-        let balance = await trustAccountContact.getBalance({from: trustAccountOwner});
-        let locked = await trustAccountContact.getFrozen();
+    // it("(Access)Testing the creation of an account via the contract", async() => {
+    //     let allOwners = [0x0, 0x0, 0x0];
+    //     let trustAccount = await TrustAccount.new(trustAccountOwner, allOwners, 4000, {from: userWallet});
+    //     let trustAccountAddress = trustAccount.address;
+    //     let trustAccountContact = await TrustAccount.at(trustAccountAddress);
+    //     let balance = await trustAccountContact.getBalance({from: trustAccountOwner});
+    //     let locked = await trustAccountContact.getFrozen();
 
-        //test 1: contract can access balance
-        assert.equal(balance, 0, "Chekcing access account functions, getbalance()");
+    //     //test 1: contract can access balance
+    //     assert.equal(balance, 0, "Chekcing access account functions, getbalance()");
 
-        //test 2: contract can access frozen status
-        assert.equal(locked, false, "CHecking access account functions, getFrozen()");
-    });
+    //     //test 2: contract can access frozen status
+    //     assert.equal(locked, false, "CHecking access account functions, getFrozen()");
+    // });
 
 
 })

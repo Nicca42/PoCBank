@@ -6,13 +6,23 @@ import "./TrustAccount.sol";
 
 contract Bank {
     address owner;
+    //the counter for trust groups
+    uint trustGroupNumbers = 1;
+    //the data stored for access and delay accounts
     struct AccountDetails {
         address owner;
         address bankAccount;
         AccessAccount.AccountType typeOfAccount;
     }
+    //the data stored for trust accounts
+    struct TrustGroupDetails {
+        address[] owners;
+        address bankAccount;
+    }
     //user wallets to their account details 
     mapping(address => AccountDetails) userWallets;
+    //trust group numbers to their information
+    mapping(uint => TrustGroupDetails) trustGroups; 
 
     /**
         @param userWallet : the address of the new users wallet.
@@ -52,6 +62,24 @@ contract Bank {
         returns(address)
     {
         return userWallets[_userWallet].bankAccount;
+    }
+
+    function getTrustGroupDetails(uint _groupNumber)
+        public
+        view
+        isOwner()
+        returns(address[])
+    {
+        return trustGroups[_groupNumber].owners;
+    }
+
+    function getTrustAccountAddress(uint _groupNumber)
+        public
+        view
+        isOwner()
+        returns(address)
+    {
+        return trustGroups[_groupNumber].bankAccount;
     }
 
     /**
@@ -96,27 +124,61 @@ contract Bank {
     //     }
     // }
 
-    function createAccessAccount(address _owner)
+    /**
+      * @param _limit : the limit to how much value can be stored in the contract
+      * @dev the user can only have one account on the system at a time, but in a future version 
+      *     the userWallet[] could be linked to an array of accounts instead of a single account. 
+      *     E.G: mapping(address => AccountDetails[]) userWallets;
+      */
+    function createAccessAccount(uint _limit)
         public
-        payable
         returns(address)
     {   
-        //TODO: create access account
+        address newAccountAddress = new AccessAccount(msg.sender, AccessAccount.AccountType.access, _limit);
+        
+        userWallets[msg.sender] = AccountDetails({
+            owner: msg.sender,
+            bankAccount: newAccountAddress,
+            typeOfAccount: AccessAccount.AccountType.access
+        });
+
+        return newAccountAddress;
     }
 
-    function creatingDelayAccount(address _owner)
+    event LogProgress(string _point);
+
+    /**
+      * @param _limit : the limit to how much value can be stored in the contract
+      * @dev if a user already has an account then the new account will override their 
+      *     current account and it will be lost. This is for a proof of consept and
+      *     not an alpha, and therfore this functionality was left out. 
+      */
+    function creatingDelayAccount(uint _limit)
         public
-        payable
         returns(address)
     {
-        //TODO: create delay account
+        address newDelayAccountAddress = new DelayAccount(msg.sender, _limit);
+        userWallets[msg.sender] = AccountDetails({
+            owner: msg.sender,
+            bankAccount: newDelayAccountAddress,
+            typeOfAccount: AccessAccount.AccountType.delay
+        });
+
+        return newDelayAccountAddress;
     }
 
-    function creatingTrustAccount(address[] _owners)
+    function creatingTrustAccount(address[] _owners, uint _limit)
         public
-        payable
         returns(address)
     {
-        //TODO: create trust account
+        address newTrustAccountAddress = new TrustAccount(_owners, _limit);
+        trustGroups[trustGroupNumbers++] = TrustGroupDetails({
+            owners: _owners,
+            bankAccount: newTrustAccountAddress
+        });
+
+        return newTrustAccountAddress;
     }
+
+
 }
