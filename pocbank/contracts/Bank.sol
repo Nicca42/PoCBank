@@ -8,6 +8,8 @@ contract Bank {
     address owner;
     //the counter for trust groups
     uint trustGroupNumbers = 1;
+    //the limit for all accounts
+    uint limit = 40000;
     //the data stored for access and delay accounts
     struct AccountDetails {
         address owner;
@@ -105,16 +107,15 @@ contract Bank {
     }
 
     /**
-      * @param _limit : the limit to how much value can be stored in the contract
       * @dev the user can only have one account on the system at a time, but in a future version 
       *     the userWallet[] could be linked to an array of accounts instead of a single account. 
       *     E.G: mapping(address => AccountDetails[]) userWallets;
       */
-    function createAccessAccount(uint _limit)
+    function createAccessAccount()
         public
         returns(address)
     {   
-        address newAccountAddress = new AccessAccount(msg.sender, AccessAccount.AccountType.access, _limit);
+        address newAccountAddress = new AccessAccount(msg.sender, AccessAccount.AccountType.access, limit);
         
         userWallets[msg.sender] = AccountDetails({
             owner: msg.sender,
@@ -128,16 +129,15 @@ contract Bank {
     event LogProgress(string _point);
 
     /**
-      * @param _limit : the limit to how much value can be stored in the contract
       * @dev if a user already has an account then the new account will override their 
       *     current account and it will be lost. This is for a proof of consept and
       *     not an alpha, and therfore this functionality was left out. 
       */
-    function creatingDelayAccount(uint _limit)
+    function creatingDelayAccount()
         public
         returns(address)
     {
-        address newDelayAccountAddress = new DelayAccount(msg.sender, _limit);
+        address newDelayAccountAddress = new DelayAccount(msg.sender, limit);
         userWallets[msg.sender] = AccountDetails({
             owner: msg.sender,
             bankAccount: newDelayAccountAddress,
@@ -149,14 +149,13 @@ contract Bank {
 
     /**
       * @param _owners : the owners of the trust account
-      * @param _limit : the limit to how much value can be stored in the contract
       * @dev 
       */
-    function creatingTrustAccount(address[] _owners, uint _limit)
+    function creatingTrustAccount(address[] _owners)
         public
         returns(address)
     {
-        address newTrustAccountAddress = new TrustAccount(_owners, _limit);
+        address newTrustAccountAddress = new TrustAccount(_owners, limit);
         trustGroups[trustGroupNumbers++] = TrustGroupDetails({
             owners: _owners,
             bankAccount: newTrustAccountAddress
@@ -166,7 +165,7 @@ contract Bank {
     }
 
     function lockAccount(address _owner)
-        internal
+        public
         isOwner()
     {
         address accountAddress = userWallets[_owner].bankAccount;
@@ -175,7 +174,7 @@ contract Bank {
     }
 
     function unlockAccount(address _owner)
-        internal
+        public
         isOwner()
     {
         address accountAddress = userWallets[_owner].bankAccount;
@@ -184,7 +183,7 @@ contract Bank {
     }
 
     function lockTrustAccount(uint _trustGroupNumber)
-        internal
+        public
         isOwner()
     {
         address accountAddress = trustGroups[_trustGroupNumber].bankAccount;
@@ -193,11 +192,75 @@ contract Bank {
     }
 
     function unlockTrustAccount(uint _trustGroupNumber)
-        internal
+        public
         isOwner()
     {
         address accountAddress = trustGroups[_trustGroupNumber].bankAccount;
         TrustAccount account = TrustAccount(accountAddress);
         account.defrost();
     }
+
+    /**
+      * @param _oldAddress : the old user wallet address
+      * @param _newAddress : the address of the new user wallet
+      * @dev changes the ownership of access and delay accounts 
+      */
+    function changeOwnership(address _oldAddress, address _newAddress)
+        public
+        isOwner()
+    {
+        require(userWallets[_oldAddress].owner == _oldAddress);
+
+        address accountAddress = userWallets[_oldAddress].bankAccount;
+        AccessAccount accountContract = AccessAccount(accountAddress);
+        accountContract.changeOwner(_newAddress);
+        userWallets[_newAddress].owner = _newAddress;
+        userWallets[_newAddress].bankAccount = accountAddress;
+        userWallets[_newAddress].typeOfAccount = userWallets[_oldAddress].typeOfAccount;
+        userWallets[_oldAddress].owner = 0x0;
+        userWallets[_oldAddress].bankAccount = 0x0;
+        userWallets[_oldAddress].typeOfAccount;
+    }
+
+    /**
+    struct AccountDetails {
+        address owner;
+        address bankAccount;
+        AccessAccount.AccountType typeOfAccount;
+    }
+    //the data stored for trust accounts
+    struct TrustGroupDetails {
+        address[] owners;
+        address bankAccount;
+    }
+     */
+
+    // /**
+    //   * @param _oldAddress : the old user wallet address
+    //   * @param _newAddress : the new user wallet address
+    //   * @param _groupNumber : the trust grup number 
+    //   * @dev 
+    //   */
+    // function changeOwnershipTrustGroup(address _oldAddress, address _newAddress, uint _groupNumber)
+    //     public
+    //     isOwner()
+    // {
+    //     uint ownerPosition = 0;
+    //     uint memory temp = trustGroups[_groupNumber].owners.length;
+    //     address[] memory allOwners = trustGroups[_groupNumber].owners;
+    //     for(uint i = 0; i <= temp; i++){
+    //         if(allOwners[i] == _oldAddress){
+    //             ownerPosition = i;
+    //         } else {
+    //             if(i == temp){
+    //                 require(false);
+    //             } else {
+    //                 continue;
+    //             }
+    //         }
+    //     }
+    //     // require(trustGroups[_groupNumber].owners);
+    // }
+
+    //TODO: make limit modifier 
 }
