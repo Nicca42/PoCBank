@@ -11,8 +11,52 @@ const {
     assertRevert 
 } = require('./helpers/assertRevert');
 
-var Bank = artifacts.require("./Bank.sol");
 var AccessAccount = artifacts.require("./AccessAccount.sol");
+
+/**
+  * Test Index 
+  * tests in this file:
+  * 
+  * (Access)Testing the creation of an account via the contract
+  *     test 1: contract can access balance
+  *     test 2: contract can access frozen status
+  * 
+  * (Access)Testing freeze
+  *     test 1: contract lock state changes
+  *     test 2: contract lock state is locked (true)
+  *     test 3: contract cannot deposit when locked
+  *     test 4: contract cannot withdraw when locked
+  *     test 5: contract unlocked is the same as pre lock
+  *     test 6: contract lock status is now false 
+  *     test 7: contract balance increased after unlocked
+  * 
+  * (Access)Testing deposit
+  *     test 1: contracts balance changes with deposit
+  *     test 2: contract cannot hold more value then limit 
+  *     test 3: contract can hold the limit
+  * 
+  * (Access)Testing withdraw
+  *     test 1: contract can be deposited into
+  *     test 2: contract can be withdrawn from
+  * 
+  * (Access)Testing the owner only functions
+  *     test 2: checks isOwner() function
+  *     test 3: checks isOwner() function
+  *     test 4: checks isBank() funcution
+  *     test 5: checks isBank() function
+  *     test 6: checks isOwner() function
+  * 
+  * (Access)Testing changing of ownership
+  *     test 1: contracts owner has changed
+  *     test 2: contracts lock state changes
+  *     test 3: contract lock state is now true
+  * 
+  * (Access)Testing dissolve
+  *     test 1: becuse this throws an:
+  *             'attempting to run transaction which calls a contract function, 
+  *             but recipient address ... is not a contract address'
+  *         it is surrounded in a try catch  
+  */
 
 contract('Access Account Tests', function(accounts) {
 
@@ -118,12 +162,16 @@ contract('Access Account Tests', function(accounts) {
 
         //test 2: checks isOwner() function
         await assertRevert(accessAccountContact.freeze({from: trustAccountOwner}), EVMRevert);
+
         //test 3: checks isOwner() function
         await assertRevert(accessAccountContact.defrost({from: trustAccountOwner}), EVMRevert);
+
         //test 4: checks isBank() funcution
         await assertRevert(accessAccountContact.dissolve({from: trustAccountOwner}), EVMRevert);
+
         //test 5: checks isBank() function
         await assertRevert(accessAccountContact.changeOwner(trustAccountOwner, {from: trustAccountOwner}), EVMRevert);
+
         //test 6: checks isOwner() function
         await assertRevert(accessAccountContact.withdraw(200, {from: trustAccountOwner}), EVMRevert);
     });
@@ -157,8 +205,8 @@ contract('Access Account Tests', function(accounts) {
         let accessAccountContact = await AccessAccount.at(accessAccountAddress);
         await accessAccountContact.dissolve({from: userWallet});
 
-        //test 1: becuse this throws a 
-            //'ttempting to run transaction which calls a contract function, 
+        //test 1: becuse this throws an
+            //'attempting to run transaction which calls a contract function, 
             //but recipient address ... is not a contract address'
             //it is surrounded in a try catch
         try {

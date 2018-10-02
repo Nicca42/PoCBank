@@ -154,7 +154,7 @@ contract Bank {
         returns(address)
     {
         address newTrustAccountAddress = new TrustAccount(_owners, limit);
-        trustGroups[trustGroupNumbers++] = TrustGroupDetails({
+        trustGroups[trustGroupNumbers] = TrustGroupDetails({
             owners: _owners,
             bankAccount: newTrustAccountAddress
         });
@@ -249,7 +249,13 @@ contract Bank {
         trustGroups[_groupNumber].owners = newOwners;
     }
 
-    //TODO: make limit modifier 
+    function newAccountLimitModifier(uint _newLimit)
+        public 
+        isOwner()
+    {
+        limit = _newLimit;
+    }
+     
 
     //TODO: make disovle accounts 
 }
