@@ -7,7 +7,7 @@ import "./TrustAccount.sol";
 contract Bank {
     address owner;
     //the counter for trust groups
-    uint trustGroupNumbers = 1;
+    uint trustGroupNumbers = 0;
     //the limit for all accounts
     uint limit = 40000;
     //the data stored for access and delay accounts
@@ -126,8 +126,6 @@ contract Bank {
         return newAccountAddress;
     }
 
-    event LogProgress(string _point);
-
     /**
       * @dev if a user already has an account then the new account will override their 
       *     current account and it will be lost. This is for a proof of consept and
@@ -160,7 +158,7 @@ contract Bank {
             owners: _owners,
             bankAccount: newTrustAccountAddress
         });
-
+        trustGroupNumbers++;
         return newTrustAccountAddress;
     }
 
@@ -235,32 +233,23 @@ contract Bank {
     }
      */
 
-    // /**
-    //   * @param _oldAddress : the old user wallet address
-    //   * @param _newAddress : the new user wallet address
-    //   * @param _groupNumber : the trust grup number 
-    //   * @dev 
-    //   */
-    // function changeOwnershipTrustGroup(address _oldAddress, address _newAddress, uint _groupNumber)
-    //     public
-    //     isOwner()
-    // {
-    //     uint ownerPosition = 0;
-    //     uint memory temp = trustGroups[_groupNumber].owners.length;
-    //     address[] memory allOwners = trustGroups[_groupNumber].owners;
-    //     for(uint i = 0; i <= temp; i++){
-    //         if(allOwners[i] == _oldAddress){
-    //             ownerPosition = i;
-    //         } else {
-    //             if(i == temp){
-    //                 require(false);
-    //             } else {
-    //                 continue;
-    //             }
-    //         }
-    //     }
-    //     // require(trustGroups[_groupNumber].owners);
-    // }
+    /**
+      * @param _oldAddress : the old user wallet address
+      * @param _newAddress : the new user wallet address
+      * @param _groupNumber : the trust grup number 
+      * @dev 
+      */
+    function changeOwnershipTrustGroup(address _oldAddress, address _newAddress, uint _groupNumber)
+        public
+        isOwner()
+    {
+        address accountAddress = trustGroups[_groupNumber].bankAccount;
+        TrustAccount accountContract = TrustAccount(accountAddress);
+        address[] memory newOwners = accountContract.changeOwner(_oldAddress, _newAddress);
+        trustGroups[_groupNumber].owners = newOwners;
+    }
 
     //TODO: make limit modifier 
+
+    //TODO: make disovle accounts 
 }

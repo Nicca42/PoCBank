@@ -51,16 +51,16 @@ contract('Bank Tests', function(accounts) {
         assert.equal(lock, false, "Checking delay account was created and can be accessed");
     });
 
-    it("(Bank)Testing the creation of trust account through the bank", async() => {
-        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
-        let groupNo = await bank.creatingTrustAccount(owners, {from: userWallet});
-        let trustAccountAddress = await bank.getTrustAccountAddress(1, {from: bankOwner});
-        let trustAccountContract = await TrustAccount.at(trustAccountAddress);
-        let lock = await trustAccountContract.getFrozen();
+    // it("(Bank)Testing the creation of trust account through the bank", async() => {
+    //     let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+    //     await bank.creatingTrustAccount(owners, {from: userWallet});
+    //     let trustAccountAddress = await bank.getTrustAccountAddress(1, {from: bankOwner});
+    //     let trustAccountContract = await TrustAccount.at(trustAccountAddress);
+    //     let lock = await trustAccountContract.getFrozen();
 
-        //test 1: contract is created and can be read from
-        assert.equal(lock, false, "Checking trust account was created and can be accessed");
-    });
+    //     //test 1: contract is created and can be read from
+    //     assert.equal(lock, false, "Checking trust account was created and can be accessed");
+    // });
 
     it("(Bank)Testing the freezing of access account", async() => {
         await bank.createAccessAccount({from: accessAccountOwner});
@@ -107,5 +107,14 @@ contract('Bank Tests', function(accounts) {
         //test 2: contracts new owner is correct
         assert.equal(currentOwner, userWallet, "Checking the new owner is the given address");
     });
+
+    // it("(Bank)Testing the changing of trust account ownership", async() => {
+    //     let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+    //     await bank.creatingTrustAccount(owners, {from: userWallet});
+    //     let trustAccountAddress = await bank.getTrustAccountAddress(1, {from: bankOwner});
+    //     let trustAccountContract = await TrustAccount.at(trustAccountAddress);
+
+    //     await bank.changeOwnershipTrustGroup(trustAccountOwnerTwo, userWallet, 1, {from: bankOwner});
+    // });
 
 })

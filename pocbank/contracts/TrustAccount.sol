@@ -10,6 +10,7 @@ contract TrustAccount is AccessAccount {
         address ownerWallet;
     }
     mapping(uint => OwnerDetails) allOwners;
+    mapping(address => uint) ownersKeys;
 
     event LogCreatedTrustAccount(address[] owners, address _bank, uint _limit);
 
@@ -17,20 +18,8 @@ contract TrustAccount is AccessAccount {
       * @dev modifier checks that only the owner may call the function
       */
     modifier isOwner() {
-        uint temp = noOfOwners;
-        if(msg.sender == AccessAccount.bankAddress){
-            //checks the msg.sender is the bank, if it is it skipps the next check
-        } else {
-            //checks the user is not one of the other owners, fails if it runs out of 
-            //owners tocheck.
-            for(uint i = temp; i > 0; i++){
-                if(allOwners[temp].ownerWallet == msg.sender){
-                    require(allOwners[temp].isOwner == true, "Owner is not active");
-                    require(temp >= 0, "Function only usable by owner");
-                    break;
-                }
-            }
-        }
+        uint key = ownersKeys[msg.sender];
+        require(allOwners[key].isOwner == true);
         _;
     }
 
@@ -47,11 +36,12 @@ contract TrustAccount is AccessAccount {
         AccessAccount.accountLimit = _limit;
         uint noOfOwnersInArray = _owners.length;
         for(uint i = 0; i < noOfOwnersInArray; i++){
-            allOwners[noOfOwners] = OwnerDetails({
+            ownersKeys[_owners[i]] = i;
+            allOwners[i] = OwnerDetails({
                 isOwner: true,
-                ownerWallet: _owners[0]
+                ownerWallet: _owners[i]
             });
-            noOfOwners++;
+             noOfOwners++;
         }
         emit LogCreatedTrustAccount(_owners, msg.sender, _limit);
     }
@@ -62,27 +52,40 @@ contract TrustAccount is AccessAccount {
       *     The require ensures that this function cannot be called on the trust account
       *     from the parent function (this function).
       */
-    function changeOwner(address _newOwnerAddress, address _oldOwnerAddress)
+    function changeOwner(address _oldOwnerAddress, address _newOwnerAddress)
         public
         isOwner()
         isFrozen()
+        returns(address[])
     {
         AccessAccount.freeze();
 
-        uint temp = noOfOwners;
-        if(allOwners[temp].ownerWallet == _oldOwnerAddress){
-            allOwners[temp].ownerWallet = _newOwnerAddress;
-            require(temp > 0, "Old Owner Address Not recognised");
-        }
-        for(uint i = temp; i > 0; i++){
-                if(allOwners[temp].ownerWallet == _oldOwnerAddress){
-                    require(allOwners[temp].isOwner == true, "Owner is not active");
-                    require(temp >= 0, "Function only usable by owner");
-                    break;
-                }
+        //struct OwnerDetails {
+        //     bool isOwner;
+        //     address ownerWallet;
+        // }
+        // uint memory temp = noOfOwners;
+        // if(allOwners[temp].ownerWallet == _oldOwnerAddress){
+        //     allOwners[temp].ownerWallet = _newOwnerAddress;
+        //     require(temp > 0, "Old Owner Address Not recognised");
+        // }
+        for(uint i = noOfOwners; i > 0; i--){
+            if(allOwners[i].ownerWallet == _oldOwnerAddress){
+                require(allOwners[i].isOwner == true, "Owner is not active");
+                require(i >= 0, "Function only usable by owner");
+                break;
             }
+        }
+        for(uint b = noOfOwners; b > 0; b--){
+            if(allOwners[b].ownerWallet == _oldOwnerAddress){
+                allOwners[b].ownerWallet = _newOwnerAddress;
+                allOwners[b].isOwner = true;
+                owners[b] = _newOwnerAddress;
+            }
+        }
 
         AccessAccount.defrost();
+        return owners;
     }
 
     /**

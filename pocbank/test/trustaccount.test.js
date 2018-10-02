@@ -19,22 +19,61 @@ contract('Trust Account Tests', function(accounts) {
     const userWallet = accounts[1];
     const accessAccountOwner = accounts[2];
     const delayAccountOwner = accounts[3];
-    const trustAccountOwner = accounts[4];
+    const trustAccountOwnerOne = accounts[4];
+    const trustAccountOwnerTwo = accounts[5];
+    const trustAccountOwnerThree = accounts[6];
+    const trustAccountOwnerFour = accounts[7];
 
-    // it("(Access)Testing the creation of an account via the contract", async() => {
-    //     let allOwners = [0x0, 0x0, 0x0];
-    //     let trustAccount = await TrustAccount.new(trustAccountOwner, allOwners, 4000, {from: userWallet});
-    //     let trustAccountAddress = trustAccount.address;
-    //     let trustAccountContact = await TrustAccount.at(trustAccountAddress);
-    //     let balance = await trustAccountContact.getBalance({from: trustAccountOwner});
-    //     let locked = await trustAccountContact.getFrozen();
+    it("(Trust)Testing the creation of an account via the contract", async() => {
+        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
+        let trustAccountAddress = trustAccount.address;
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress);
+        let balance = await trustAccountContact.getBalance({from: trustAccountOwnerOne});
+        let locked = await trustAccountContact.getFrozen();
 
-    //     //test 1: contract can access balance
-    //     assert.equal(balance, 0, "Chekcing access account functions, getbalance()");
+        //test 1: contract can access balance
+        assert.equal(balance, 0, "Chekcing access account functions, getbalance()");
 
-    //     //test 2: contract can access frozen status
-    //     assert.equal(locked, false, "CHecking access account functions, getFrozen()");
-    // });
+        //test 2: contract can access frozen status
+        assert.equal(locked, false, "CHecking access account functions, getFrozen()");
+    });
 
+    it("(Trust)Testing freeze", async() => {
+        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
+        let trustAccountAddress = trustAccount.address;
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress);
+        let lock = await trustAccountContact.getFrozen();
 
+        await trustAccountContact.freeze({from: trustAccountOwnerTwo});
+        let locked = await trustAccountContact.getFrozen();
+
+        //test 1: the accounts frozen status has changed
+        assert.notEqual(lock, locked, "Checking acounts frozen status changes");
+
+        //test 2: contract lock status is true
+        assert.equal(locked, true, "Checking account frozen status is true");
+
+        //test 3: contract cannot deposit when locked
+        await assertRevert(trustAccountContact.deposit({value: 200}), EVMRevert);
+
+        //test 4: contract cannot withdraw when locked
+        await assertRevert(trustAccountContact.withdraw(20, {from: delayAccountOwner}), EVMRevert);
+
+        await trustAccountContact.defrost({from: trustAccountOwnerTwo});
+        let unlocked = await trustAccountContact.getFrozen();
+
+        //test 5: contract unlock is same as prelock
+        assert.equal(unlocked, lock, "Checking account unlocked is same as prelock");
+
+        //test 6: contract lock is now false
+        assert.equal(unlocked, false, "Checking account lock status is now false");
+
+        await trustAccountContact.deposit({value: 200});
+        let balance = await trustAccountContact.getBalance();
+
+        //test 7: contract balance increased after unlocked
+        assert.equal(balance, 200, "Checking account balance increases by 200");
+    });
 })
