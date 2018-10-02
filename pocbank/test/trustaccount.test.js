@@ -76,4 +76,47 @@ contract('Trust Account Tests', function(accounts) {
         //test 7: contract balance increased after unlocked
         assert.equal(balance, 200, "Checking account balance increases by 200");
     });
+
+    it("(Trust)Testing deposit", async() => {
+        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
+        let trustAccountAddress = trustAccount.address;
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress);
+        let balanceBefore = await trustAccountContact.getBalance({from: trustAccountOwnerOne});
+        await trustAccountContact.deposit({value: 3999});
+        let balanceAfter = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
+
+        //test 1: contracts balance changes with deposit
+        assert.notEqual(balanceBefore, balanceAfter, "Checking balance changed");
+        
+        //test 2: contract cannot hold more value then limit 
+        await assertRevert(trustAccountContact.deposit({value: 10}), EVMRevert);
+
+        await trustAccountContact.deposit({value: 1});
+        let balance = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
+
+        //test 3: contract can hold the limit
+        assert.equal(balance, 4000, "Checking account can hold limit");
+
+    });
+
+    it("(Tust)Testing vote on withdraw/adding owner/removing owner", async() => {
+
+    });
+
+    it("(Trust)Testing withdraw", async() => {
+
+    });
+
+    it("(Trust)Testing the owner only functions", async() => {
+
+    });
+
+    it("(Trust)Testing the changing of ownership", async() => {
+
+    });
+
+    it("(Trust)Testing dissolve", async() => {
+
+    });
 })

@@ -31,7 +31,7 @@ contract('Bank Tests', function(accounts) {
         bank = await Bank.new({from: bankOwner});
     });
 
-    it("(Bank)Testing the creating of access acount through the bank", async() => {
+    it("(Bank)Testing creating of access acount through the bank", async() => {
         await bank.createAccessAccount({from: accessAccountOwner});
         let accessAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
         let accessAccountContract = await AccessAccount.at(accessAccountAddress);
@@ -41,7 +41,7 @@ contract('Bank Tests', function(accounts) {
         assert.equal(lock, false, "Checking access acount created and can be accessed");
     });
 
-    it("(Bank)Testing the creation of a delay account through the bank", async() => {
+    it("(Bank)Testing creation of a delay account through the bank", async() => {
         await bank.creatingDelayAccount({from: delayAccountOwner});
         let delayAccountAddress = await bank.getBankAccountAddress(delayAccountOwner, {from: bankOwner});
         let delayAccountContract = await DelayAccount.at(delayAccountAddress);
@@ -51,18 +51,18 @@ contract('Bank Tests', function(accounts) {
         assert.equal(lock, false, "Checking delay account was created and can be accessed");
     });
 
-    // it("(Bank)Testing the creation of trust account through the bank", async() => {
-    //     let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
-    //     await bank.creatingTrustAccount(owners, {from: userWallet});
-    //     let trustAccountAddress = await bank.getTrustAccountAddress(1, {from: bankOwner});
-    //     let trustAccountContract = await TrustAccount.at(trustAccountAddress);
-    //     let lock = await trustAccountContract.getFrozen();
+    it("(Bank)Testing creation of trust account through the bank", async() => {
+        // let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        // await bank.creatingTrustAccount(owners, {from: userWallet});
+        // let trustAccountAddress = await bank.getTrustAccountAddress(1, {from: bankOwner});
+        // let trustAccountContract = await TrustAccount.at(trustAccountAddress);
+        // let lock = await trustAccountContract.getFrozen();
 
-    //     //test 1: contract is created and can be read from
-    //     assert.equal(lock, false, "Checking trust account was created and can be accessed");
-    // });
+        // //test 1: contract is created and can be read from
+        // assert.equal(lock, false, "Checking trust account was created and can be accessed");
+    });
 
-    it("(Bank)Testing the freezing of access account", async() => {
+    it("(Bank)Testing freezing of access account", async() => {
         await bank.createAccessAccount({from: accessAccountOwner});
         let accessAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
         let accessAccountContract = await AccessAccount.at(accessAccountAddress);
@@ -80,7 +80,15 @@ contract('Bank Tests', function(accounts) {
         assertRevert(accessAccountContract.deposit({value: 300}), EVMRevert);
     });
 
-    it("(Bank)Testing the changing of access account ownership", async() => {
+    it("(Bank)Testing freezing of delay account", async() => {
+
+    });
+
+    it("(Bank)Testing freezing of trust account", async() => {
+
+    });
+
+    it("(Bank)Testing changing of access account ownership", async() => {
         await bank.createAccessAccount({from: accessAccountOwner});
         let accessAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
         let accessAccountContract = await AccessAccount.at(accessAccountAddress);
@@ -94,7 +102,7 @@ contract('Bank Tests', function(accounts) {
         assert.equal(currentOwner, userWallet, "Checking the new owner is the given address");        
     });
 
-    it("(Bank)Testing the changing of delay account ownership", async() => {
+    it("(Bank)Testing changing of delay account ownership", async() => {
         await bank.creatingDelayAccount({from: delayAccountOwner});
         let delayAccountAddress = await bank.getBankAccountAddress(delayAccountOwner, {from: bankOwner});
         let delayAccountContract = await DelayAccount.at(delayAccountAddress);
@@ -108,13 +116,25 @@ contract('Bank Tests', function(accounts) {
         assert.equal(currentOwner, userWallet, "Checking the new owner is the given address");
     });
 
-    // it("(Bank)Testing the changing of trust account ownership", async() => {
-    //     let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
-    //     await bank.creatingTrustAccount(owners, {from: userWallet});
-    //     let trustAccountAddress = await bank.getTrustAccountAddress(1, {from: bankOwner});
-    //     let trustAccountContract = await TrustAccount.at(trustAccountAddress);
+    it("(Bank)Testing changing of trust account ownership", async() => {
+        // let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        // await bank.creatingTrustAccount(owners, {from: userWallet});
+        // let trustAccountAddress = await bank.getTrustAccountAddress(1, {from: bankOwner});
+        // let trustAccountContract = await TrustAccount.at(trustAccountAddress);
 
-    //     await bank.changeOwnershipTrustGroup(trustAccountOwnerTwo, userWallet, 1, {from: bankOwner});
-    // });
+        // await bank.changeOwnershipTrustGroup(trustAccountOwnerTwo, userWallet, 1, {from: bankOwner});
+    });
+
+    it("(Bank)Testing dissolving of access account", async() => {
+
+    });
+
+    it("(Bank)Testing dissolving of delay account", async() => {
+
+    });
+
+    it("(Bank)Testing dissolving of trust account", async() => {
+
+    });
 
 })

@@ -45,7 +45,7 @@ contract('Delay Account Tests', function(accounts) {
         assert.equal(locked, false, "Checking access account functions, getFrozen()");
     });
 
-    it("(Delay)Testing the freeze", async() => {
+    it("(Delay)Testing freeze", async() => {
         let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
         let delayAccountAddress = await delayAccount.address;
         let delayAccountContact = await DelayAccount.at(delayAccountAddress);
@@ -125,6 +125,23 @@ contract('Delay Account Tests', function(accounts) {
 
         //test 3: contract balance changes after withdraw 
         assert.equal(balance, 100, "Checking balance has changed and is correct after withdraw");
+    });
+
+    it("(Delay)Testing the owner only functions", async() => {
+        let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
+        let delayAccountAddress = await delayAccount.address;
+        let delayAccountContact = await DelayAccount.at(delayAccountAddress);
+
+        //test 2: checks isOwner() function
+        await assertRevert(delayAccountContact.freeze({from: trustAccountOwner}), EVMRevert);
+        //test 3: checks isOwner() function
+        await assertRevert(delayAccountContact.defrost({from: trustAccountOwner}), EVMRevert);
+        //test 4: checks isBank() funcution
+        await assertRevert(delayAccountContact.dissolve({from: trustAccountOwner}), EVMRevert);
+        //test 5: checks isBank() function
+        await assertRevert(delayAccountContact.changeOwner(trustAccountOwner, {from: trustAccountOwner}), EVMRevert);
+        //test 6: checks isOwner() function
+        await assertRevert(delayAccountContact.withdraw(200, {from: trustAccountOwner}), EVMRevert);
     });
 
     it("(Delay)Testing changing of ownership", async() => {
