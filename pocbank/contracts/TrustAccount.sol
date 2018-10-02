@@ -13,6 +13,9 @@ contract TrustAccount is AccessAccount {
 
     event LogCreatedTrustAccount(address[] owners, address _bank, uint _limit);
 
+    /** 
+      * @dev modifier checks that only the owner may call the function
+      */
     modifier isOwner() {
         uint temp = noOfOwners;
         if(msg.sender == AccessAccount.bankAddress){

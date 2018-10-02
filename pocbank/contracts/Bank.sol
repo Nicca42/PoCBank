@@ -104,26 +104,6 @@ contract Bank {
         usersAccount.defrost();
     }
 
-//was going to do it like this, but as the various contracts require different 
-//arguments it prooved more cumbersome than just creating seporate functions
-    // function createAccount(AccessAccount.AccountType _chosenAccountType)
-    //     public
-    //     payable 
-    //     // isLocked(msg.sender)
-    //     returns(address)
-    // {
-    //     uint balance = msg.value;
-    //     if(_chosenAccountType == AccessAccount.AccountType.access){
-    //         return creatingAccessAccount(msg.sender);
-    //     } else if(_chosenAccountType == AccessAccount.AccountType.delay) {
-    //         return creatingDelayAccount(msg.sender);
-    //     } else if(_chosenAccountType == AccessAccount.AccountType.trust) {
-    //         return creatingTrustAccount(msg.sender);
-    //     } else {
-    //         return 0x0;
-    //     }
-    // }
-
     /**
       * @param _limit : the limit to how much value can be stored in the contract
       * @dev the user can only have one account on the system at a time, but in a future version 
@@ -167,6 +147,11 @@ contract Bank {
         return newDelayAccountAddress;
     }
 
+    /**
+      * @param _owners : the owners of the trust account
+      * @param _limit : the limit to how much value can be stored in the contract
+      * @dev 
+      */
     function creatingTrustAccount(address[] _owners, uint _limit)
         public
         returns(address)
@@ -180,5 +165,39 @@ contract Bank {
         return newTrustAccountAddress;
     }
 
+    function lockAccount(address _owner)
+        internal
+        isOwner()
+    {
+        address accountAddress = userWallets[_owner].bankAccount;
+        AccessAccount account = AccessAccount(accountAddress);
+        account.freeze();
+    }
 
+    function unlockAccount(address _owner)
+        internal
+        isOwner()
+    {
+        address accountAddress = userWallets[_owner].bankAccount;
+        AccessAccount account = AccessAccount(accountAddress);
+        account.defrost();
+    }
+
+    function lockTrustAccount(uint _trustGroupNumber)
+        internal
+        isOwner()
+    {
+        address accountAddress = trustGroups[_trustGroupNumber].bankAccount;
+        TrustAccount account = TrustAccount(accountAddress);
+        account.freeze();
+    }
+
+    function unlockTrustAccount(uint _trustGroupNumber)
+        internal
+        isOwner()
+    {
+        address accountAddress = trustGroups[_trustGroupNumber].bankAccount;
+        TrustAccount account = TrustAccount(accountAddress);
+        account.defrost();
+    }
 }
