@@ -285,7 +285,23 @@ contract TrustAccount is AccessAccount {
         private 
         returns(bool)
     {
-        return true;
+        require(allBallots[_ballotID].endTime < now, "Voting time has not ended. Please try again later");
+        require(allBallots[_ballotID].actedOn == false, "Withdraw has already taken place");
+        require(allVotesForBallot[_ballotID].length > 0);
+
+        uint trueVotes = 0; 
+        uint falseVotes = 0;
+        for(uint i = 0; i < allVotesForBallot[_ballotID].length; i++){
+            if(allVotesForBallot[_ballotID][i].vote)
+                trueVotes++;
+            else 
+                falseVotes++;
+        }
+        //if it ties it fails
+        if(trueVotes > falseVotes)
+            return true;
+        else
+            return false;
     }
 
     /**
@@ -300,8 +316,8 @@ contract TrustAccount is AccessAccount {
         AccessAccount.freeze();
 
         // require(allBallots[_requstNo].typeOfVote == VoteType.withdrawRequest, "Invalid request number");
-        require(allBallots[_ballotID].endTime < now, "Voting time has not ended. Please try again later");
-        require(allBallots[_ballotID].actedOn == false, "Withdraw has already taken place");
+        // require(allBallots[_ballotID].endTime < now, "Voting time has not ended. Please try again later");
+        // require(allBallots[_ballotID].actedOn == false, "Withdraw has already taken place");
         require(allBallots[_ballotID].amount < AccessAccount.balance, "Insufficent funds");
         require(votePassed(_ballotID));
 

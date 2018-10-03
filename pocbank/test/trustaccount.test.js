@@ -169,7 +169,7 @@ contract('Trust Account Tests', function(accounts) {
         let trustAccountAddress = trustAccount.address;
         let trustAccountContact = await TrustAccount.at(trustAccountAddress, );
         await trustAccountContact.deposit({value: 300});
-        let balance = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
+        let balance = await trustAccountContact.getBalance({from: trustAccountOwnerFour});
         await trustAccountContact.requestWithdraw(trustAccountOwnerThree, 200, {from: trustAccountOwnerThree});
 
         await trustAccountContact.voteFor(0, false, {from: trustAccountOwnerOne});
@@ -181,11 +181,11 @@ contract('Trust Account Tests', function(accounts) {
         let afterEndingTime = await nowTime + duration.days(3) + duration.minutes(3);
         await increaseTimeTo(afterEndingTime);
 
-        await trustAccountContact.changeOwnerAddress(0, {from: trustAccountOwnerThree});
-        let balanceAfter = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
+        await assertRevert(trustAccountContact.withdraw(0, {from: trustAccountOwnerThree}), EVMRevert);
+        let balanceAfter = await trustAccountContact.getBalance({from: trustAccountOwnerFour});
 
-        // assert.notEqual(balanceAfter["c"][0], 100, "Checking account balance changes");
-        // assert.equal(balance, balanceAfter, "Checking balance after changes by withdraw");
+        assert.notEqual(balanceAfter["c"][0], 100, "Checking account balance changes");
+        assert.equal(balance["c"][0], balanceAfter["c"][0], "Checking balance after changes by withdraw");
     });
 
     it("(Trust)Testing the owner only functions", async() => {
