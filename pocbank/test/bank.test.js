@@ -85,7 +85,6 @@ var TrustAccount = artifacts.require("./TrustAccount.sol");
   * 
   *     (Bank)Testing dissolving of trust account
   *         TODO
-  *     
   */
 
 contract('Bank Tests', function(accounts) {
