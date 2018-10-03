@@ -109,4 +109,19 @@ contract TrustAccount is AccessAccount {
 
         AccessAccount.defrost();
     }
+
+    function dissolve()
+        public
+        isBank()
+    {
+        frozen =  true;
+        uint valuePerOwner = balance / noOfOwners;
+        for(uint i = 0; i <= noOfOwners; i++){
+            uint key = ownersKeys[owners[i]];
+            if(allOwners[key].isOwner == true){
+                owners[i].transfer(valuePerOwner);
+            }
+        }
+        selfdestruct(bankAddress);
+    }
 }

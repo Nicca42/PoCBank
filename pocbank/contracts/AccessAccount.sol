@@ -92,6 +92,13 @@ contract AccessAccount{
         return accountLimit;
     }
 
+    function setLimit(uint _newLimit)
+        public
+        isBank()
+    {
+        accountLimit = _newLimit;
+    }
+
     /**
       * @dev freezed the account. The isFrozen() is used to ensure an already
       *     frozen account cannot be frozen again.

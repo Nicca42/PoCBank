@@ -72,7 +72,9 @@ var TrustAccount = artifacts.require("./TrustAccount.sol");
   *         test 2: contracts new limit is 5000
   * 
   *     (Bank)Testing the ability of a bank to change an existing accounts limit
-  *         TODO
+  *         test 1: contract limit is noew different
+  *         test 2: contract limit is set to new amount
+  *         test 3: contract cannot have a limit changed to below balance 
   * 
   *>> DISSOLVING  
   *     (Bank)Testing dissolving of access account
@@ -195,7 +197,7 @@ contract('Bank Tests', function(accounts) {
         assert.equal(locked, true, "Checking the contract is now locked");
 
         //test 3: contract cannot perform frozen sensitive functions
-        // await assertRevert(accessAccountContract.deposit({value: 300}), EVMRevert);
+        await assertRevert(accessAccountContract.deposit({value: 300}), EVMRevert);
 
         await bank.unlockAccount(accessAccountOwner, {from: bankOwner});
         let unlocked = await accessAccountContract.getFrozen();
@@ -340,7 +342,23 @@ contract('Bank Tests', function(accounts) {
       *     the limit change dose not mean they are over the limit 
       */
     it("(Bank)Testing the ability of a bank to change an existing accounts limit", async() => {
+        await bank.createAccessAccount({from: accessAccountOwner});
+        let accessAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
+        let accessAccountContract = await AccessAccount.at(accessAccountAddress);
+        let limit = await accessAccountContract.getLimit({from: accessAccountOwner});
+        await bank.accountLimitModifier(accessAccountAddress, 3000, {from: bankOwner});
+        let limitAfter = await accessAccountContract.getLimit({from: accessAccountOwner});
 
+        //test 1: contract limit is noew different
+        assert.notEqual(limit, limitAfter, "Checking account limit changed");
+
+        //test 2: contract limit is set to new amount
+        assert.equal(limitAfter, 3000, "Checking limit is 3000");
+
+        await accessAccountContract.deposit({value: 3000});
+
+        //test 3: contract cannot have a limit changed to below balance 
+        await assertRevert(bank.accountLimitModifier(accessAccountAddress, 2000, {from: bankOwner}), EVMRevert);
     });
 
 
@@ -353,14 +371,46 @@ contract('Bank Tests', function(accounts) {
       * @dev tests the ability of the bank to dissolve an access account 
       */
     it("(Bank)Testing dissolving of access account", async() => {
+        await bank.createAccessAccount({from: accessAccountOwner});
+        let accessAccountAddress = await bank.getBankAccountAddress(accessAccountOwner, {from: bankOwner});
+        let accessAccountContract = await AccessAccount.at(accessAccountAddress);
+        await bank.dissolveAccount(accessAccountAddress);
 
+        //test 1: becuse this throws an
+            //'attempting to run transaction which calls a contract function, 
+            //but recipient address ... is not a contract address'
+            //it is surrounded in a try catch
+            try {
+                await accessAccountContract.freeze({from: userWallet});
+                //if it works it should never reach here
+                assert.equal(true, false, "");
+            } catch(e) {
+                //when the .freeze() fails it should skip the assert and this should run
+                assert.equal(true, true, "");
+            }
     });
 
     /** 
       * @dev tests the ability of the bank to dissolve a delay account 
       */
     it("(Bank)Testing dissolving of delay account", async() => {
+        await bank.creatingDelayAccount({from: delayAccountOwner});
+        let delayAccountAddress = await bank.getBankAccountAddress(delayAccountOwner, {from: bankOwner});
+        let delayAccountContract = await DelayAccount.at(delayAccountAddress);
+        await bank.dissolveAccount(delayAccountAddress);
 
+        //test 1: becuse this throws an
+            //'attempting to run transaction which calls a contract function, 
+            //but recipient address ... is not a contract address'
+            //it is surrounded in a try catch
+            try {
+                await delayAccountContract.freeze({from: userWallet});
+                //if it works it should never reach here
+                assert.equal(true, false, "");
+            } catch(e) {
+                //when the .freeze() fails it should skip the assert and this should run
+                assert.equal(true, true, "");
+            }
     });
 
      /** 

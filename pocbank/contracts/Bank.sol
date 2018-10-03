@@ -255,7 +255,22 @@ contract Bank {
     {
         limit = _newLimit;
     }
-     
 
-    //TODO: make disovle accounts 
+    function accountLimitModifier(address _account, uint _newLimit)
+        public
+        isOwner()
+    {
+        AccessAccount account = AccessAccount(_account);
+        uint balance = account.getBalance();
+        require(balance < _newLimit);
+        account.setLimit(_newLimit);
+    }
+     
+    function dissolveAccount(address _account)
+        public
+        isOwner()
+    {
+        AccessAccount account = AccessAccount(_account);
+        account.dissolve();
+    }
 }
