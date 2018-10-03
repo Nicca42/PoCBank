@@ -303,7 +303,7 @@ contract TrustAccount is AccessAccount {
         require(allBallots[_ballotID].endTime < now, "Voting time has not ended. Please try again later");
         require(allBallots[_ballotID].actedOn == false, "Withdraw has already taken place");
         require(allBallots[_ballotID].amount < AccessAccount.balance, "Insufficent funds");
-        require(votePassed(uint _ballotID));
+        require(votePassed(_ballotID));
 
         allBallots[_ballotID].actedOn = true;
         AccessAccount.balance -= allBallots[_ballotID].amount;
@@ -312,7 +312,7 @@ contract TrustAccount is AccessAccount {
         AccessAccount.defrost();
     }
 
-    function changeOwnerAddress()
+    function changeOwnerAddress(uint _ballotID)
         public
         isOwner()
         isFrozen()
@@ -321,10 +321,14 @@ contract TrustAccount is AccessAccount {
 
         require(allBallots[_ballotID].endTime < now, "Voting time has not ended. Please try again later");
         require(allBallots[_ballotID].actedOn == false, "Withdraw has already taken place");
-        require(votePassed(uint _ballotID));
+        require(allOwners[ownersKeys[allBallots[_ballotID].currentAddress]].isOwner);
+        require(votePassed(_ballotID));
+        require(allOwners[ownersKeys[allBallots[_ballotID].currentAddress]].isOwner);
 
-        
-
+        allBallots[_ballotID].actedOn = true;
+        allOwners[ownersKeys[allBallots[_ballotID].currentAddress]].isOwner = false;
+        ownersKeys[allBallots[_ballotID].newAddress] = ownersKeys[allBallots[_ballotID].currentAddress];
+        ownersKeys[allBallots[_ballotID].currentAddress] = 999;
         AccessAccount.defrost();
     }
 

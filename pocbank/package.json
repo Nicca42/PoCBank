@@ -7,11 +7,15 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "covarage": "./node_modules/.bin/solidity-coverage"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "chai": "^4.2.0"
+  },
+  "devDependencies": {
+    "solidity-coverage": "^0.5.11"
   }
 }

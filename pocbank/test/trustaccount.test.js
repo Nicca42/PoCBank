@@ -133,7 +133,7 @@ contract('Trust Account Tests', function(accounts) {
         let afterEndingTime = await nowTime + duration.days(3) + duration.minutes(3);
         await increaseTimeTo(afterEndingTime);
 
-        
+
 
         //assertRevert test getOwner() => isOwner()
     });
@@ -156,13 +156,36 @@ contract('Trust Account Tests', function(accounts) {
         let afterEndingTime = await nowTime + duration.days(3) + duration.minutes(3);
         await increaseTimeTo(afterEndingTime);
 
-        let ballotInformation = await trustAccountContact.getBallot(0);
-
         await trustAccountContact.withdraw(0, {from: trustAccountOwnerThree});
         let balanceAfter = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
 
         assert.notEqual(balance, balanceAfter, "Checking account balance changes");
         assert.equal(balanceAfter["c"][0], 100, "Checking balance after changes by withdraw");
+    });
+
+    it("(Trust)Testing vote fail revert", async() => {
+        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
+        let trustAccountAddress = trustAccount.address;
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress, );
+        await trustAccountContact.deposit({value: 300});
+        let balance = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
+        await trustAccountContact.requestWithdraw(trustAccountOwnerThree, 200, {from: trustAccountOwnerThree});
+
+        await trustAccountContact.voteFor(0, false, {from: trustAccountOwnerOne});
+        await trustAccountContact.voteFor(0, false, {from: trustAccountOwnerTwo});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerThree});
+        await trustAccountContact.voteFor(0, false, {from: trustAccountOwnerFour});
+
+        let nowTime = await latestTime();
+        let afterEndingTime = await nowTime + duration.days(3) + duration.minutes(3);
+        await increaseTimeTo(afterEndingTime);
+
+        await trustAccountContact.changeOwnerAddress(0, {from: trustAccountOwnerThree});
+        let balanceAfter = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
+
+        // assert.notEqual(balanceAfter["c"][0], 100, "Checking account balance changes");
+        // assert.equal(balance, balanceAfter, "Checking balance after changes by withdraw");
     });
 
     it("(Trust)Testing the owner only functions", async() => {
