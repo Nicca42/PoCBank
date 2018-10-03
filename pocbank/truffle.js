@@ -15,7 +15,7 @@
 module.exports = {
   networks: {
     development: {
-      gas: 4500000,
+      gas: 30000000,
       gasPrice: 10000000000,
       host: "127.0.0.1",
       port: 7545,
@@ -25,7 +25,7 @@ module.exports = {
   solc: {
     optimizer: {
       enabled: true,
-      runs: 200
+      runs: 500
     }
   }
   // See <http://truffleframework.com/docs/advanced/configuration>

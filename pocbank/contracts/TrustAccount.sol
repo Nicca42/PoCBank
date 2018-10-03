@@ -21,7 +21,7 @@ contract TrustAccount is AccessAccount {
     struct OwnerDetails {
         bool isOwner;
         address ownerWallet;
-        Votes[] allVotes;
+        // Votes[] allVotes;
     }
     //the ballots, containing the votes specific details and an ID
     struct Ballot {
@@ -95,6 +95,84 @@ contract TrustAccount is AccessAccount {
         }
     }
 
+    // /**
+    //   * @param _ballotID : the ballot ID
+    //   */
+    // function actOnVote(uint _ballotID)
+    //     public
+    //     isOwner()
+    // {
+    //     require(allBallots[_ballotID].endTime < now, "Vote end time has not been reached yet");
+    //     allBallots[_ballotID].actedOn = false;
+    //     uint votesTrue = 0;
+    //     uint votesFalse = 0;
+    //     uint numberOfVotes = allVotesForBallot[_ballotID].length;
+    //     for(uint i = 0; i < numberOfVotes; i++){
+    //         bool temp = allVotesForBallot[_ballotID][i].vote;
+    //         if(temp)
+    //             votesTrue++;
+    //         else 
+    //             votesFalse++;
+    //     }
+    //     if(votesTrue > votesFalse){
+    //         //do the thing
+    //         if(allBallots[_ballotID].typeOfVote == VoteType.removeOwner){
+    //             allOwners[ownersKeys[allBallots[_ballotID].currentAddress]]
+    //         }
+    //         if(allBallots[_ballotID].typeOfVote == VoteType.addOwner){
+
+    //         }
+    //         if(allBallots[_ballotID].typeOfVote == VoteType.changeOwner){
+
+    //         }
+    //         if(allBallots[_ballotID].typeOfVote == VoteType.withdrawRequest){
+
+    //         }
+    //     } else {
+    //         //dont do the thing
+    //     }
+    // }
+
+    
+
+    event LogCreatedTrustAccount(address[] owners, address _bank, uint _limit);
+
+    /** 
+      * @dev modifier checks that only the owner may call the function
+      */
+    modifier isOwner() {
+        uint key = ownersKeys[msg.sender];
+        require(allOwners[key].isOwner == true);
+        _;
+    }
+
+    /**
+      * @dev the constructor sets the owner in the access account to the bank as 
+      *     all the owners need equal status and replacability. 
+      */
+    constructor(address[] _owners, uint _limit)
+        AccessAccount(msg.sender, AccessAccount.AccountType.trust, _limit)
+        public
+    {
+        AccessAccount.onwerAddress = msg.sender;
+        bankAddress = msg.sender;
+        AccessAccount.accountLimit = _limit;
+        uint noOfOwnersInArray = _owners.length;
+        for(uint i = 0; i < noOfOwnersInArray; i++){
+            ownersKeys[_owners[i]] = i;
+            allOwners[i] = OwnerDetails({
+                isOwner: true,
+                ownerWallet: _owners[i]
+            });
+            noOfOwners++;
+        }
+        emit LogCreatedTrustAccount(_owners, msg.sender, _limit);
+    }
+
+    /**
+      * @param _ballotID : the ballots ID
+      * @dev returns the details fo a single ballot
+      */
     function getBallot(uint _ballotID)
         public
         view
@@ -130,76 +208,17 @@ contract TrustAccount is AccessAccount {
         }));
     }
 
-    /**
-      * @param _ballotID : the ballot ID
-      */
-    function actOnVote(uint _ballotID)
+    function requestOwner(VoteType _chosenType)
         public
-        isOwner()
+        view
     {
-        require(allBallots[_ballotID].endTime < now, "Vote end time has not been reached yet");
-        allBallots[_ballotID].actedOn = false;
-        uint votesTrue = 0;
-        uint votesFalse = 0;
-        uint numberOfVotes = allVotesForBallot[_ballotID].length;
-        for(uint i = 0; i < numberOfVotes; i++){
-            bool temp = allVotesForBallot[_ballotID][i].vote;
-            if(temp)
-                votesTrue++;
-            else 
-                votesFalse++;
+        if(_chosenType == VoteType.withdrawRequest){
+            require(false);
         }
-        if(votesTrue > votesFalse){
-            //do the thing
-            if(allBallots[_ballotID].typeOfVote == VoteType.removeOwner){
-
-            }
-            if(allBallots[_ballotID].typeOfVote == VoteType.addOwner){
-
-            }
-            if(allBallots[_ballotID].typeOfVote == VoteType.changeOwner){
-
-            }
-            if(allBallots[_ballotID].typeOfVote == VoteType.withdrawRequest){
-
-            }
-        } else {
-            //dont do the thing
-        }
-    }
-
-    event LogCreatedTrustAccount(address[] owners, address _bank, uint _limit);
-
-    /** 
-      * @dev modifier checks that only the owner may call the function
-      */
-    modifier isOwner() {
-        uint key = ownersKeys[msg.sender];
-        require(allOwners[key].isOwner == true);
-        _;
-    }
-
-    /**
-      * @dev the constructor sets the owner in the access account to the bank as 
-      *     all the owners need equal status and replacability. 
-      */
-    constructor(address[] _owners, uint _limit)
-        AccessAccount(msg.sender, AccessAccount.AccountType.trust, _limit)
-        public
-    {
-        AccessAccount.onwerAddress = msg.sender;
-        bankAddress = msg.sender;
-        AccessAccount.accountLimit = _limit;
-        uint noOfOwnersInArray = _owners.length;
-        for(uint i = 0; i < noOfOwnersInArray; i++){
-            ownersKeys[_owners[i]] = i;
-            allOwners[i] = OwnerDetails({
-                isOwner: true,
-                ownerWallet: _owners[i]
-            });
-             noOfOwners++;
-        }
-        emit LogCreatedTrustAccount(_owners, msg.sender, _limit);
+        //set individual variables depending on type of account
+        //eg
+        //if its remove owner, make new address 0x0 and use
+        //request changing of owership
     }
 
     /**
@@ -244,27 +263,49 @@ contract TrustAccount is AccessAccount {
         return owners;
     }
 
-    /**
-      * @param _amount : the amount to be withdrawn 
-      * @dev only allows the owner(s) to withdraw. Dose not allow use if account is frozen 
-      *     (or dissolved). Ensures the usage of witdraw in the child contracts for both delay
-      *     contracts and trust contracts. 
-      */
-    function withdraw(uint _amount)
+    function requestWithdraw(address _to, uint _amount)
         public
         isOwner()
-        isFrozen()
+        returns(uint)
     {
-        AccessAccount.freeze();
-
-        require(thisAccountType != AccountType.trust, "Please use withdraw function in trust contract");
-        require(thisAccountType != AccountType.delay, "Please use withdraw function in delay contract");
-        require(_amount <= balance, "Cannot withdraw more funds than available");
-        balance -= _amount;
-        onwerAddress.transfer(_amount);
-
-        AccessAccount.defrost();
+        require(_amount < balance, "Cannot withdraw more than owned");
+        this.createVote(VoteType.withdrawRequest, _to, 0x0, _amount);
     }
+
+    function withdraw(uint _requstNo)
+        public
+        isOwner()
+    {
+        require(allBallots[_requstNo].typeOfVote == VoteType.withdrawRequest, "Invalid request number");
+        require(allBallots[_requstNo].endTime < now, "Votes time has not passed. Please try again later");
+        require(allBallots[_requstNo].actedOn == false, "Withdraw has already taken place");
+        require(allBallots[_requstNo].amount < balance, "Insufficent funds");
+
+        allBallots[_requstNo].actedOn = true;
+        allBallots[_requstNo].currentAddress.transfer(allBallots[_requstNo].amount);
+    }
+
+    // /**
+    //   * @param _amount : the amount to be withdrawn 
+    //   * @dev only allows the owner(s) to withdraw. Dose not allow use if account is frozen 
+    //   *     (or dissolved). Ensures the usage of witdraw in the child contracts for both delay
+    //   *     contracts and trust contracts. 
+    //   */
+    // function withdraw(uint _amount)
+    //     public
+    //     isOwner()
+    //     isFrozen()
+    // {
+    //     AccessAccount.freeze();
+
+    //     require(thisAccountType != AccountType.trust, "Please use withdraw function in trust contract");
+    //     require(thisAccountType != AccountType.delay, "Please use withdraw function in delay contract");
+    //     require(_amount <= balance, "Cannot withdraw more funds than available");
+    //     balance -= _amount;
+    //     onwerAddress.transfer(_amount);
+
+    //     AccessAccount.defrost();
+    // }
 
     event LogProgress(string _desc);
     event LogValue(uint _value);

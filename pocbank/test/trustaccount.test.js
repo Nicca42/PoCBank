@@ -10,6 +10,16 @@ const {
 const { 
     assertRevert 
 } = require('./helpers/assertRevert');
+const {
+    advanceBlock
+} = require('./helpers/advanceToBlock');
+const {
+    increaseTimeTo,
+    duration
+} = require('./helpers/increaseTime');
+const {
+    latestTime
+} = require('./helpers/latestTime');
 
 var TrustAccount = artifacts.require("./TrustAccount.sol");
 
@@ -112,8 +122,29 @@ contract('Trust Account Tests', function(accounts) {
 
     });
 
-    it("(Trust)Testing withdraw", async() => {
+    it("(Trust)Testing withdraw and voting", async() => {
+        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
+        let trustAccountAddress = trustAccount.address;
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress);
+        await trustAccountContact.deposit({value: 300});
+        let balance = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
+        await trustAccountContact.requestWithdraw(trustAccountOwnerThree, 200, {from: trustAccountOwnerThree});
 
+        await trustAccountContact.voteFor(1, true, {from: trustAccountOwnerOne});
+        await trustAccountContact.voteFor(1, true, {from: trustAccountOwnerTwo});
+        await trustAccountContact.voteFor(1, true, {from: trustAccountOwnerThree});
+        await trustAccountContact.voteFor(1, true, {from: trustAccountOwnerFour});
+
+        let nowTime = await latestTime();
+        let afterEndingTime = await nowTime + duration.days(3) + duration.minutes(3);
+        await increaseTimeTo(afterEndingTime);
+
+        await trustAccountContact.withdraw(1, {from: trustAccountOwnerThree});
+        let balanceAfter = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
+
+        assert.notEqual(balance, balanceAfter, "Checking account balance changes");
+        assert.equal(balanceAfter["c"][0], 100, "Checking balance after changes by withdraw");
     });
 
     it("(Trust)Testing the owner only functions", async() => {
