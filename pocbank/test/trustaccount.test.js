@@ -35,6 +35,9 @@ contract('Trust Account Tests', function(accounts) {
     const trustAccountOwnerThree = accounts[6];
     const trustAccountOwnerFour = accounts[7];
 
+    /**
+      * @dev  
+      */
     it("(Trust)Testing the creation of an account via the contract", async() => {
         let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
         let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
@@ -108,7 +111,6 @@ contract('Trust Account Tests', function(accounts) {
 
         //test 3: contract can hold the limit
         assert.equal(balance, 4000, "Checking account can hold limit");
-
     });
 
     it("(Trust)Testing vote on adding owner", async() => {
@@ -177,7 +179,7 @@ contract('Trust Account Tests', function(accounts) {
         let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
         let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
         let trustAccountAddress = trustAccount.address;
-        let trustAccountContact = await TrustAccount.at(trustAccountAddress, );
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress);
         await trustAccountContact.deposit({value: 300});
         let balance = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
         await trustAccountContact.requestWithdraw(trustAccountOwnerThree, 200, {from: trustAccountOwnerThree});
@@ -202,7 +204,7 @@ contract('Trust Account Tests', function(accounts) {
         let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
         let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
         let trustAccountAddress = trustAccount.address;
-        let trustAccountContact = await TrustAccount.at(trustAccountAddress, );
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress);
         await trustAccountContact.deposit({value: 300});
         let balance = await trustAccountContact.getBalance({from: trustAccountOwnerFour});
         await trustAccountContact.requestWithdraw(trustAccountOwnerThree, 200, {from: trustAccountOwnerThree});
@@ -226,8 +228,51 @@ contract('Trust Account Tests', function(accounts) {
         assert.equal(balance["c"][0], balanceAfter["c"][0], "Checking balance after changes by withdraw");
     });
 
+    /**
+      * @dev checks all functions that the trust account has that are restricted to the owners
+      * @notice the creation call TrustAccount.new() is done by bankOwner, as the bank address
+      *     is considered an owner in all circumstances.
+      */
     it("(Trust)Testing the owner only functions", async() => {
-        
+        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        let trustAccount = await TrustAccount.new(owners, 4000, {from: bankOwner});
+        let trustAccountAddress = trustAccount.address;
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress);
+        await trustAccountContact.deposit({value: 1000});
+
+        //test 1: contract denites access to remove owner function
+        await assertRevert(trustAccountContact.removeOwner(0, {from: userWallet}), EVMRevert);
+
+        //test 2: contract denites access to add owner function
+        await assertRevert(trustAccountContact.addOwner(0, {from: userWallet}), EVMRevert);
+
+        //test 3: contract denies access to change owner fucntion for bank
+        await assertRevert(trustAccountContact.changeOwner(trustAccountOwnerOne, userWallet, {from: userWallet}), EVMRevert);
+
+        //test 4: contract denites access to change owner function 
+        await assertRevert(trustAccountContact.changeOwnerAddress(0, {from: userWallet}), EVMRevert);
+
+        //test 5: contract deinies access to withdraw function
+        await assertRevert(trustAccountContact.withdraw(0, {from: userWallet}), EVMRevert);
+
+        //test 6: contract denies access to voting function
+        await assertRevert(trustAccountContact.voteFor(0, true, {from: userWallet}), EVMRevert);
+
+        // await assertRevert(trustAccountContact.removeOwnerRequest(trustAccountOwnerTwo, {from: userWallet}), EVMRevert);
+
+        // await assertRevert(trustAccountContact.addOwnerRequest(userWallet, {from: userWallet}), EVMRevert);
+
+        // await assertRevert(trustAccountContact.requestChangeOwnerAddress(trustAccountOwnerOne, userWallet, {from: userWallet}), EVMRevert);
+
+        // await assertRevert(trustAccountContact.requestWithdraw(userWallet, 500, {from: userWallet}), EVMRevert);
+
+        // await assertRevert(trustAccountContact.getOwner({from: userWallet}), EVMRevert);
+
+        // await assertRevert(trustAccountContact.getLimit({from: userWallet}), EVMRevert);
+
+        // await assertRevert(trustAccountContact.freeze({from: userWallet}), EVMRevert);
+
+        // await assertRevert(trustAccountContact.defrost({from: userWallet}), EVMRevert);
     });
 
     it("(Trust)Testing dissolve", async() => {

@@ -50,8 +50,12 @@ contract TrustAccount is AccessAccount {
       * @dev modifier checks that only the owner may call the function
       */
     modifier isOwner() {
-        uint key = ownersKeys[msg.sender];
-        require(allOwners[key].isOwner == true);
+        if(msg.sender == bankAddress){
+
+        } else {
+            uint key = ownersKeys[msg.sender];
+            require(allOwners[key].isOwner == true, "Function only accessible by owner");
+        }
         _;
     }
 
@@ -93,7 +97,6 @@ contract TrustAccount is AccessAccount {
       */
     function createBallot(VoteType _voteType, address _current, address _new, uint _amount)
         private
-        isOwner()
     {
         if(
             _voteType == VoteType.removeOwner || 
@@ -375,7 +378,7 @@ contract TrustAccount is AccessAccount {
         uint valuePerOwnerCounter = 0;
         emit LogProgress("value per owner");
         emit LogValue(valuePerOwner);
-        
+
         for(uint i = 0; i <= noOfOwners ; i++){
             if(allOwners[i].isOwner)
                 valuePerOwnerCounter++;
@@ -387,4 +390,5 @@ contract TrustAccount is AccessAccount {
         }
         selfdestruct(bankAddress);
     }
+
 }
