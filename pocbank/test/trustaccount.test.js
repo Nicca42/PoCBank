@@ -22,6 +22,7 @@ const {
 } = require('./helpers/latestTime');
 
 var TrustAccount = artifacts.require("./TrustAccount.sol");
+var Bank = artifacts.require("./Bank.sol");
 
 contract('Trust Account Tests', function(accounts) {
 
@@ -111,11 +112,43 @@ contract('Trust Account Tests', function(accounts) {
     });
 
     it("(Trust)Testing vote on adding owner", async() => {
+        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
+        let trustAccountAddress = trustAccount.address;
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress);
+        await trustAccountContact.addOwnerRequest(accessAccountOwner, {from: trustAccountOwnerThree});
+        
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerOne});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerTwo});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerThree});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerFour});
 
+        let nowTime = await latestTime();
+        let afterEndingTime = await nowTime + duration.days(3) + duration.minutes(3);
+        await increaseTimeTo(afterEndingTime);
+        await trustAccountContact.addOwner(0, {from: trustAccountOwnerThree});
+        let balance = await trustAccountContact.getBalance.call({from: accessAccountOwner});
+
+        //test 1: contract has added new owner, and the new owner can access all owner functions
+        assert.equal(balance["c"][0], 0, "Checking added owner has been added");
     });
 
     it("(Trust)Testing vote on removing owner", async() => {
+        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
+        let trustAccountAddress = trustAccount.address;
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress);
+        await trustAccountContact.removeOwnerRequest(trustAccountOwnerTwo, {from: trustAccountOwnerThree});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerOne});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerThree});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerFour});
+        let nowTime = await latestTime();
+        let afterEndingTime = await nowTime + duration.days(3) + duration.minutes(3);
+        await increaseTimeTo(afterEndingTime);
+        await trustAccountContact.removeOwner(0, {from: trustAccountOwnerThree});
 
+        //test 1: contract owner senstitive functions cannot be called by old owner
+        await assertRevert(trustAccountContact.getOwner({from: trustAccountOwnerTwo}), EVMRevert);
     });
 
     it("(Trust)Testing vote on changing owner", async() => {
@@ -124,18 +157,20 @@ contract('Trust Account Tests', function(accounts) {
         let trustAccountAddress = trustAccount.address;
         let trustAccountContact = await TrustAccount.at(trustAccountAddress);
         await trustAccountContact.requestChangeOwnerAddress(trustAccountOwnerTwo, accessAccountOwner, {from: trustAccountOwnerThree});
-        
         await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerOne});
         await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerThree});
         await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerFour});
-
         let nowTime = await latestTime();
         let afterEndingTime = await nowTime + duration.days(3) + duration.minutes(3);
         await increaseTimeTo(afterEndingTime);
+        await trustAccountContact.changeOwnerAddress(0, {from: trustAccountOwnerThree});
+        let balance = await trustAccountContact.getBalance({from: accessAccountOwner});
 
+        //test 1: contract owner senstitive functions cannot be called by old owner
+        await assertRevert(trustAccountContact.getOwner({from: trustAccountOwnerTwo}), EVMRevert);
 
-
-        //assertRevert test getOwner() => isOwner()
+        //test 2: contract owner sensitive functions can be called by new owner
+        assert.equal(balance["c"][0], 0, "Checking account can be accessed by new owner");
     });
 
     it("(Trust)Testing vote on withdraw", async() => {
@@ -146,20 +181,20 @@ contract('Trust Account Tests', function(accounts) {
         await trustAccountContact.deposit({value: 300});
         let balance = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
         await trustAccountContact.requestWithdraw(trustAccountOwnerThree, 200, {from: trustAccountOwnerThree});
-
         await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerOne});
         await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerTwo});
         await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerThree});
         await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerFour});
-
         let nowTime = await latestTime();
         let afterEndingTime = await nowTime + duration.days(3) + duration.minutes(3);
         await increaseTimeTo(afterEndingTime);
-
         await trustAccountContact.withdraw(0, {from: trustAccountOwnerThree});
         let balanceAfter = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
 
+        //test 1: contract balance and balance after withdraw are different
         assert.notEqual(balance, balanceAfter, "Checking account balance changes");
+
+        //test 2: contract balance reduced by amount withdrawn
         assert.equal(balanceAfter["c"][0], 100, "Checking balance after changes by withdraw");
     });
 
@@ -171,49 +206,56 @@ contract('Trust Account Tests', function(accounts) {
         await trustAccountContact.deposit({value: 300});
         let balance = await trustAccountContact.getBalance({from: trustAccountOwnerFour});
         await trustAccountContact.requestWithdraw(trustAccountOwnerThree, 200, {from: trustAccountOwnerThree});
-
         await trustAccountContact.voteFor(0, false, {from: trustAccountOwnerOne});
         await trustAccountContact.voteFor(0, false, {from: trustAccountOwnerTwo});
         await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerThree});
         await trustAccountContact.voteFor(0, false, {from: trustAccountOwnerFour});
-
         let nowTime = await latestTime();
         let afterEndingTime = await nowTime + duration.days(3) + duration.minutes(3);
         await increaseTimeTo(afterEndingTime);
 
+        //test 1: contract reverts on failed withdraw request
         await assertRevert(trustAccountContact.withdraw(0, {from: trustAccountOwnerThree}), EVMRevert);
+
         let balanceAfter = await trustAccountContact.getBalance({from: trustAccountOwnerFour});
 
+        //test 2: contract balance reduced by amount withdrawn
         assert.notEqual(balanceAfter["c"][0], 100, "Checking account balance changes");
+
+        //test 3: contract balance before and alfter failed withdraw request are equal
         assert.equal(balance["c"][0], balanceAfter["c"][0], "Checking balance after changes by withdraw");
     });
 
     it("(Trust)Testing the owner only functions", async() => {
-
-    });
-
-    it("(Trust)Testing the changing of ownership", async() => {
-
+        
     });
 
     it("(Trust)Testing dissolve", async() => {
-        // let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
-        // let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
-        // let trustAccountAddress = trustAccount.address;
-        // let trustAccountContact = await TrustAccount.at(trustAccountAddress);
-        // trustAccountContact.dissolve({from: userWallet});
+        bank = await Bank.new({from: bankOwner});
+        let bankAddress = bank.address;
+        let bankContract = await Bank.at(bankAddress);
+        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        let trustAccount = await TrustAccount.new(owners, 4000, {from: bankOwner});
+        let trustAccountAddress = trustAccount.address;
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress);
+        await trustAccountContact.deposit({value: 400});
+        trustAccountContact.dissolve({from: bankOwner});
         
-        // //test 1: becuse this throws an:
-        //         //'attempting to run transaction which calls a contract function, 
-        //         //but recipient address ... is not a contract address'
-        //     //it is surrounded in a try catch
-        //     try {
-        //         await trustAccountContact.freeze({from: userWallet});
-        //         //if it works it should never reach here
-        //         assert.equal(true, false, "");
-        //     } catch(e) {
-        //         //when the .freeze() fails it should skip the assert and this should run
-        //         assert.equal(true, true, "");
-            // }
+        //test 1: becuse this throws an:
+                //'attempting to run transaction which calls a contract function, 
+                //but recipient address ... is not a contract address'
+            //it is surrounded in a try catch
+            try {
+                await trustAccountContact.freeze({from: bankOwner});
+                //if it works it should never reach here
+                assert.equal(true, false, "");
+            } catch(e) {
+                //when the .freeze() fails it should skip the assert and this should run
+                assert.equal(true, true, "");
+            }
+
+            let bankBalance = await bankContract.getBalance({from: bankOwner});
+
+            assert.equal(bankBalance["c"][0], 0, "Checking balance of contract is 0, and contract value is distributed");
     });
 })

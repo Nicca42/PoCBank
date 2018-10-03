@@ -52,6 +52,15 @@ contract Bank {
         owner = msg.sender;
     }
 
+    function getBalance()
+        public
+        view
+        isOwner()
+        returns(uint)
+    {
+        return address(this).balance;
+    }
+
     /**
      * @param _userWallet : the address of the users account 
      * @return address : the address of the users bank account
