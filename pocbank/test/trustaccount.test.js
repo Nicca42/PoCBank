@@ -240,39 +240,44 @@ contract('Trust Account Tests', function(accounts) {
         let trustAccountContact = await TrustAccount.at(trustAccountAddress);
         await trustAccountContact.deposit({value: 1000});
 
-        //test 1: contract denites access to remove owner function
+        //test 1: contract denites access to remove owner function to non owner
         await assertRevert(trustAccountContact.removeOwner(0, {from: userWallet}), EVMRevert);
 
-        //test 2: contract denites access to add owner function
+        //test 2: contract denites access to add owner function to non owner
         await assertRevert(trustAccountContact.addOwner(0, {from: userWallet}), EVMRevert);
 
-        //test 3: contract denies access to change owner fucntion for bank
+        //test 3: contract denies access to change owner fucntion for bank to non owner
         await assertRevert(trustAccountContact.changeOwner(trustAccountOwnerOne, userWallet, {from: userWallet}), EVMRevert);
 
-        //test 4: contract denites access to change owner function 
+        //test 4: contract denites access to change owner function to non owner
         await assertRevert(trustAccountContact.changeOwnerAddress(0, {from: userWallet}), EVMRevert);
 
-        //test 5: contract deinies access to withdraw function
+        //test 5: contract deinies access to withdraw function to non owner
         await assertRevert(trustAccountContact.withdraw(0, {from: userWallet}), EVMRevert);
 
-        //test 6: contract denies access to voting function
+        //test 6: contract denies access to voting function to non owner
         await assertRevert(trustAccountContact.voteFor(0, true, {from: userWallet}), EVMRevert);
 
-        // await assertRevert(trustAccountContact.removeOwnerRequest(trustAccountOwnerTwo, {from: userWallet}), EVMRevert);
+        //test 7: contract denies access to dissolving function to non owner
+        await assertRevert(trustAccountContact.dissolve({from: userWallet}), EVMRevert);
 
-        // await assertRevert(trustAccountContact.addOwnerRequest(userWallet, {from: userWallet}), EVMRevert);
+        //test 8: contract denies access to remove owner function to non owner
+        await assertRevert(trustAccountContact.removeOwnerRequest(trustAccountOwnerTwo, {from: userWallet}), EVMRevert);
 
-        // await assertRevert(trustAccountContact.requestChangeOwnerAddress(trustAccountOwnerOne, userWallet, {from: userWallet}), EVMRevert);
+        //test 9: contract denies 
+        await assertRevert(trustAccountContact.addOwnerRequest(userWallet, {from: userWallet}), EVMRevert);
 
-        // await assertRevert(trustAccountContact.requestWithdraw(userWallet, 500, {from: userWallet}), EVMRevert);
+        await assertRevert(trustAccountContact.requestChangeOwnerAddress(trustAccountOwnerOne, userWallet, {from: userWallet}), EVMRevert);
 
-        // await assertRevert(trustAccountContact.getOwner({from: userWallet}), EVMRevert);
+        await assertRevert(trustAccountContact.requestWithdraw(userWallet, 500, {from: userWallet}), EVMRevert);
 
-        // await assertRevert(trustAccountContact.getLimit({from: userWallet}), EVMRevert);
+        await assertRevert(trustAccountContact.getOwner({from: userWallet}), EVMRevert);
 
-        // await assertRevert(trustAccountContact.freeze({from: userWallet}), EVMRevert);
+        await assertRevert(trustAccountContact.getLimit({from: userWallet}), EVMRevert);
 
-        // await assertRevert(trustAccountContact.defrost({from: userWallet}), EVMRevert);
+        await assertRevert(trustAccountContact.freeze({from: userWallet}), EVMRevert);
+
+        await assertRevert(trustAccountContact.defrost({from: userWallet}), EVMRevert);
     });
 
     it("(Trust)Testing dissolve", async() => {

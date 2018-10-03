@@ -54,6 +54,7 @@ contract TrustAccount is AccessAccount {
 
         } else {
             uint key = ownersKeys[msg.sender];
+            require(allOwners[key].ownerWallet == msg.sender, "Address is not owner of Key");
             require(allOwners[key].isOwner == true, "Function only accessible by owner");
         }
         _;
