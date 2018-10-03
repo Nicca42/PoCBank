@@ -122,6 +122,8 @@ contract AccessAccount{
         frozen = false;
     }
 
+    event LogProgress(string _desc);
+
     /**
       * @dev lets the bank dissolve account, sending all funds to the owner
       */
@@ -130,6 +132,7 @@ contract AccessAccount{
         isBank()
     {
         frozen =  true;
+        emit LogProgress("(access) disolve");
         selfdestruct(onwerAddress);
     }
 

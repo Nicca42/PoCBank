@@ -417,7 +417,24 @@ contract('Bank Tests', function(accounts) {
       * @dev tests the ability of the bank to dissolve a trust account 
       */
     it("(Bank)Testing dissolving of trust account", async() => {
+        let owners = [trustAccountOwnerOne, bankOwner, trustAccountOwnerThree, trustAccountOwnerFour];
+        await bank.creatingTrustAccount(owners, {from: userWallet});
+        let trustAccountAddress = await bank.getTrustAccountAddress(0, {from: bankOwner});
+        let trustAccountContract = await TrustAccount.at(trustAccountAddress);
+        await bank.dissolveAccount(trustAccountAddress);
 
+        //test 1: becuse this throws an
+            //'attempting to run transaction which calls a contract function, 
+            //but recipient address ... is not a contract address'
+            //it is surrounded in a try catch
+            try {
+                await trustAccountContract.freeze({from: userWallet});
+                //if it works it should never reach here
+                assert.equal(true, false, "");
+            } catch(e) {
+                //when the .freeze() fails it should skip the assert and this should run
+                assert.equal(true, true, "");
+            }
     });
 
 })

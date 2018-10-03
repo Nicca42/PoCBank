@@ -3,14 +3,170 @@ pragma solidity ^0.4.24;
 import "./AccessAccount.sol";
 
 contract TrustAccount is AccessAccount {
+    //array of all the owner addresses
     address[] owners;
+    //counter of all owners
     uint noOfOwners = 0;
+    //ballot counter
+    uint ballotIDs = 0;
+    //the different types of votes
+    enum VoteType {removeOwner, addOwner, changeOwner, withdrawRequest}
+    //votes, containingthe voter, their vote and the ballot ID
+    struct Votes {
+        address voter;
+        bool vote;
+        uint ballotID;
+    }
+    //the owners, containing if they are active and all their votes
     struct OwnerDetails {
         bool isOwner;
         address ownerWallet;
+        Votes[] allVotes;
     }
+    //the ballots, containing the votes specific details and an ID
+    struct Ballot {
+        uint ballotID;
+        VoteType typeOfVote;
+        uint startTime;
+        uint endTime;
+        address currentAddress;
+        address newAddress;
+        uint amount;
+        bool actedOn;
+    }
+    //ballots to their ids
+    mapping(uint => Ballot) allBallots;
+    //all votes for the ballot
+    mapping(uint => Votes[]) allVotesForBallot;
+    //user keys to their details
     mapping(uint => OwnerDetails) allOwners;
+    //user addresses to keys
     mapping(address => uint) ownersKeys;
+
+    /**
+      * @param _voteType : the type of vote it is
+      * @param _current : if it is removing / changing / adding an owner:
+      *     if removing, _new will be empy.
+      *     if changing, _current is their current address, _new is the address
+      *         to replace them with
+      *     if adding an owner, current will be blank and _new will contain their address
+      *     if withdraw requset the current is the address the funds would go to
+      * @param _new :if changing / adding an owner: 
+      *     if changing, this will be their new address, and current will be their old one
+      *     if adding, the _current will be blank and _new will contain the new address
+      *     if withdraw request then this is blank
+      * @dev if the vote type is rejecting a withdraw requset then both addresses are empty
+      */
+    function createVote(VoteType _voteType, address _current, address _new, uint _amount)
+        public
+        isOwner()
+    {
+        if(
+            _voteType == VoteType.removeOwner || 
+            _voteType == VoteType.addOwner || 
+            _voteType == VoteType.changeOwner
+        ){
+            //vote is changing owners
+            ballotIDs++;
+            allBallots[ballotIDs] = Ballot({
+                ballotID: ballotIDs,
+                typeOfVote: _voteType,
+                startTime: now,
+                //3 (days) x 24 (hours) x 60 (minutes) x 60 (secounds) = 259 200
+                endTime: now + 259200,
+                currentAddress: _current,
+                newAddress: _new,
+                amount: 0,
+                actedOn: false
+            });
+        } else {
+            //vote is rejecting withdraw.
+            ballotIDs++;
+            allBallots[ballotIDs] = Ballot({
+                ballotID: ballotIDs,
+                typeOfVote: _voteType,
+                startTime: now,
+                endTime: now + 259200,
+                currentAddress: _current,
+                newAddress: 0x0,
+                amount: _amount,
+                actedOn: false
+            });
+        }
+    }
+
+    function getBallot(uint _ballotID)
+        public
+        view
+        returns(
+            VoteType typeOfVote, 
+            uint startTime, 
+            uint endTime, 
+            address currentAddress, 
+            address newAddress,
+            bool actedOn
+        )
+    {
+        typeOfVote = allBallots[_ballotID].typeOfVote;
+        startTime = allBallots[_ballotID].startTime;
+        endTime = allBallots[_ballotID].endTime;
+        currentAddress = allBallots[_ballotID].currentAddress;
+        newAddress = allBallots[_ballotID].newAddress;
+        actedOn = allBallots[_ballotID].actedOn;
+    }
+
+    /**
+      * @param _ballotID : the ballot ID
+      * @param _vote : their vote for the ballot
+      */
+    function voteFor(uint _ballotID, bool _vote)
+        public
+        isOwner()
+    {
+        allVotesForBallot[_ballotID].push(Votes ({
+            voter: msg.sender,
+            vote: _vote,
+            ballotID: _ballotID
+        }));
+    }
+
+    /**
+      * @param _ballotID : the ballot ID
+      */
+    function actOnVote(uint _ballotID)
+        public
+        isOwner()
+    {
+        require(allBallots[_ballotID].endTime < now, "Vote end time has not been reached yet");
+        allBallots[_ballotID].actedOn = false;
+        uint votesTrue = 0;
+        uint votesFalse = 0;
+        uint numberOfVotes = allVotesForBallot[_ballotID].length;
+        for(uint i = 0; i < numberOfVotes; i++){
+            bool temp = allVotesForBallot[_ballotID][i].vote;
+            if(temp)
+                votesTrue++;
+            else 
+                votesFalse++;
+        }
+        if(votesTrue > votesFalse){
+            //do the thing
+            if(allBallots[_ballotID].typeOfVote == VoteType.removeOwner){
+
+            }
+            if(allBallots[_ballotID].typeOfVote == VoteType.addOwner){
+
+            }
+            if(allBallots[_ballotID].typeOfVote == VoteType.changeOwner){
+
+            }
+            if(allBallots[_ballotID].typeOfVote == VoteType.withdrawRequest){
+
+            }
+        } else {
+            //dont do the thing
+        }
+    }
 
     event LogCreatedTrustAccount(address[] owners, address _bank, uint _limit);
 
@@ -110,18 +266,29 @@ contract TrustAccount is AccessAccount {
         AccessAccount.defrost();
     }
 
+    event LogProgress(string _desc);
+    event LogValue(uint _value);
+
     function dissolve()
         public
         isBank()
     {
+        emit LogProgress("in disolve (trust)");
         frozen =  true;
-        uint valuePerOwner = balance / noOfOwners;
-        for(uint i = 0; i <= noOfOwners; i++){
-            uint key = ownersKeys[owners[i]];
-            if(allOwners[key].isOwner == true){
-                owners[i].transfer(valuePerOwner);
-            }
+        uint valuePerOwner = balance / owners.length;
+        emit LogProgress("value per owner");
+        emit LogValue(valuePerOwner);
+        for(uint i = 0; i <= owners.length; i++){
+            // owners[i].transfer(valuePerOwner);
         }
+        // for(uint i = 0; i <= noOfOwners; i++){
+        //     emit LogProgress("in for loop");
+        //     emit LogValue(i);
+        //     uint key = ownersKeys[owners[i]];
+        //     if(allOwners[key].isOwner == true){
+        //         owners[i].transfer(valuePerOwner);
+        //     }
+        // }
         selfdestruct(bankAddress);
     }
 }
