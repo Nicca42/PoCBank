@@ -119,14 +119,30 @@ contract('Trust Account Tests', function(accounts) {
     });
 
     it("(Trust)Testing vote on changing owner", async() => {
-
-    });
-
-    it("(Trust)Testing withdraw and voting", async() => {
         let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
         let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
         let trustAccountAddress = trustAccount.address;
         let trustAccountContact = await TrustAccount.at(trustAccountAddress);
+        await trustAccountContact.requestChangeOwnerAddress(trustAccountOwnerTwo, accessAccountOwner, {from: trustAccountOwnerThree});
+        
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerOne});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerThree});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerFour});
+
+        let nowTime = await latestTime();
+        let afterEndingTime = await nowTime + duration.days(3) + duration.minutes(3);
+        await increaseTimeTo(afterEndingTime);
+
+        
+
+        //assertRevert test getOwner() => isOwner()
+    });
+
+    it("(Trust)Testing vote on withdraw", async() => {
+        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        let trustAccount = await TrustAccount.new(owners, 4000, {from: userWallet});
+        let trustAccountAddress = trustAccount.address;
+        let trustAccountContact = await TrustAccount.at(trustAccountAddress, );
         await trustAccountContact.deposit({value: 300});
         let balance = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
         await trustAccountContact.requestWithdraw(trustAccountOwnerThree, 200, {from: trustAccountOwnerThree});
