@@ -253,13 +253,13 @@ contract('Bank Tests', function(accounts) {
       * 
       */
     it("(Bank)Testing freezing and defrosting of trust account", async() => {
-        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
-        await bank.creatingTrustAccount(owners, {from: userWallet});
-        let trustAccountAddress = await bank.getTrustAccountAddress(0, {from: bankOwner});
-        let trustAccountContract = await TrustAccount.at(trustAccountAddress);
-        let lock = await trustAccountContract.getFrozen();
-        bank.lockAccount(trustAccountOwnerThree, {from: bankOwner});
-        let locked = await trustAccountContract.getFrozen();
+        // let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        // await bank.creatingTrustAccount(owners, {from: userWallet});
+        // let trustAccountAddress = await bank.getTrustAccountAddress(0, {from: bankOwner});
+        // let trustAccountContract = await TrustAccount.at(trustAccountAddress);
+        // let lock = await trustAccountContract.getFrozen();
+        // bank.lockAccount(trustAccountOwnerThree, {from: bankOwner});
+        // let locked = await trustAccountContract.getFrozen();
 
         
     });
@@ -337,7 +337,7 @@ contract('Bank Tests', function(accounts) {
         let accessAccountAddressTwo = await bank.getBankAccountAddress(userWallet, {from: bankOwner});
         let accessAccountContractTwo = await AccessAccount.at(accessAccountAddressTwo);
         let limitTwo = await accessAccountContractTwo.getLimit({from: userWallet});
-        console.log(limitTwo["c"][0]);
+        
         //test 1: new contract limit has changed
         assert.notEqual(limit, limitTwo, "Checking the limit of the new acount is different");
 

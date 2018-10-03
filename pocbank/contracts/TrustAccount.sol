@@ -12,7 +12,7 @@ contract TrustAccount is AccessAccount {
     //the different types of votes
     enum VoteType {removeOwner, addOwner, changeOwner, withdrawRequest}
     //votes, containingthe voter, their vote and the ballot ID
-    struct Votes {
+    struct Vote {
         address voter;
         bool vote;
         uint ballotID;
@@ -35,9 +35,10 @@ contract TrustAccount is AccessAccount {
         bool actedOn;
     }
     //ballots to their ids
+    //change to array
     mapping(uint => Ballot) allBallots;
     //all votes for the ballot
-    mapping(uint => Votes[]) allVotesForBallot;
+    mapping(uint => Vote[]) allVotesForBallot;
     //user keys to their details
     mapping(uint => OwnerDetails) allOwners;
     //user addresses to keys
@@ -61,13 +62,13 @@ contract TrustAccount is AccessAccount {
         public
         isOwner()
     {
+        //TODO: change to create ballot
         if(
             _voteType == VoteType.removeOwner || 
             _voteType == VoteType.addOwner || 
             _voteType == VoteType.changeOwner
         ){
-            //vote is changing owners
-            ballotIDs++;
+            //vote is owners modification
             allBallots[ballotIDs] = Ballot({
                 ballotID: ballotIDs,
                 typeOfVote: _voteType,
@@ -79,9 +80,9 @@ contract TrustAccount is AccessAccount {
                 amount: 0,
                 actedOn: false
             });
+            ballotIDs++;
         } else {
             //vote is rejecting withdraw.
-            ballotIDs++;
             allBallots[ballotIDs] = Ballot({
                 ballotID: ballotIDs,
                 typeOfVote: _voteType,
@@ -92,6 +93,7 @@ contract TrustAccount is AccessAccount {
                 amount: _amount,
                 actedOn: false
             });
+            ballotIDs++;
         }
     }
 
@@ -201,7 +203,9 @@ contract TrustAccount is AccessAccount {
         public
         isOwner()
     {
-        allVotesForBallot[_ballotID].push(Votes ({
+        //reqire(isBallotValid(_ballotID));
+        //requre(ballot[_ballotID].startTime > now && ballot[_ballotID].endTime < now);
+        allVotesForBallot[_ballotID].push(Vote ({
             voter: msg.sender,
             vote: _vote,
             ballotID: _ballotID
@@ -263,25 +267,36 @@ contract TrustAccount is AccessAccount {
         return owners;
     }
 
+    //TODO: make create ballot private 
+        //define interfaces
+
     function requestWithdraw(address _to, uint _amount)
         public
         isOwner()
+        isFrozen()
         returns(uint)
     {
         require(_amount < balance, "Cannot withdraw more than owned");
         this.createVote(VoteType.withdrawRequest, _to, 0x0, _amount);
     }
 
+    // event LogProgress(string _desc);
+
     function withdraw(uint _requstNo)
         public
         isOwner()
+        isFrozen()
     {
-        require(allBallots[_requstNo].typeOfVote == VoteType.withdrawRequest, "Invalid request number");
-        require(allBallots[_requstNo].endTime < now, "Votes time has not passed. Please try again later");
+        emit LogProgress("inside withdraw trust account");
+        // require(allBallots[_requstNo].typeOfVote == VoteType.withdrawRequest, "Invalid request number");
+        require(allBallots[_requstNo].endTime < now, "Voting time has not ended. Please try again later");
         require(allBallots[_requstNo].actedOn == false, "Withdraw has already taken place");
-        require(allBallots[_requstNo].amount < balance, "Insufficent funds");
+        require(allBallots[_requstNo].amount < AccessAccount.balance, "Insufficent funds");
+        emit LogProgress("After all requires");
+        //require(votePassed(uint _requestNo));
 
         allBallots[_requstNo].actedOn = true;
+        AccessAccount.balance -= allBallots[_requstNo].amount;
         allBallots[_requstNo].currentAddress.transfer(allBallots[_requstNo].amount);
     }
 

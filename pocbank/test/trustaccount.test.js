@@ -131,16 +131,18 @@ contract('Trust Account Tests', function(accounts) {
         let balance = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
         await trustAccountContact.requestWithdraw(trustAccountOwnerThree, 200, {from: trustAccountOwnerThree});
 
-        await trustAccountContact.voteFor(1, true, {from: trustAccountOwnerOne});
-        await trustAccountContact.voteFor(1, true, {from: trustAccountOwnerTwo});
-        await trustAccountContact.voteFor(1, true, {from: trustAccountOwnerThree});
-        await trustAccountContact.voteFor(1, true, {from: trustAccountOwnerFour});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerOne});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerTwo});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerThree});
+        await trustAccountContact.voteFor(0, true, {from: trustAccountOwnerFour});
 
         let nowTime = await latestTime();
         let afterEndingTime = await nowTime + duration.days(3) + duration.minutes(3);
         await increaseTimeTo(afterEndingTime);
 
-        await trustAccountContact.withdraw(1, {from: trustAccountOwnerThree});
+        let ballotInformation = await trustAccountContact.getBallot(0);
+
+        await trustAccountContact.withdraw(0, {from: trustAccountOwnerThree});
         let balanceAfter = await trustAccountContact.getBalance({from: trustAccountOwnerTwo});
 
         assert.notEqual(balance, balanceAfter, "Checking account balance changes");

@@ -165,7 +165,6 @@ contract AccessAccount{
         payable
         isFrozen()
     {
-        require(msg.value > 0, "Value cannot be negative");
         require(balance + msg.value > 0, "Value cannot make balance negative");
         require(balance + msg.value <= accountLimit, "Deposit takes account over limit");
         balance += msg.value;
