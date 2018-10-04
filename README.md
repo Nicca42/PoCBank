@@ -46,7 +46,7 @@ This project uses mutexes, separation of concerns, modular testing, and optimiza
 This project uses inheritance. Initially it was not going to and I was going to have each contract as a separate entity, but using the various functions from the bank contract without a parent class where the functions are be unified proved inefficient.
 <p align="center">  
   <img
-   src="https://github.com/Nicca42/PoCBank/blob/master/pocbank/img/Inheritance.JPG" alt="Inheritance"/>
+   src="https://github.com/Nicca42/PoCBank/blob/master/img/Inheritance.JPG" alt="Inheritance"/>
   <br>
 </p>
 
