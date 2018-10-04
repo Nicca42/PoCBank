@@ -347,11 +347,9 @@ contract('Bank Tests', function(accounts) {
         let trustAccountContract = await TrustAccount.at(trustAccountAddress);
         trustAccountContract.deposit({value: 300});
         await bank.changeOwnershipTrustGroup(trustAccountOwnerTwo, userWallet, 0, {from: bankOwner});
-        //test 1: contract dose not allow owner sensitive functions to be called by old owner
-        // await assertRevert(trustAccountContract.requestWithdraw(trustAccountOwnerTwo, 100, {from: trustAccountOwnerTwo}), EVMRevert);
 
-        // let newOnwers = await trustAccountContract.getOwners({from: userWallet});
-        // console.log(newOnwers);
+        //test 1: contract dose not allow owner sensitive functions to be called by old owner
+        await assertRevert(trustAccountContract.requestWithdraw(trustAccountOwnerTwo, 100, {from: trustAccountOwnerTwo}), EVMRevert);
     });
 
 

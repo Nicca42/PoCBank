@@ -110,8 +110,8 @@ contract TrustAccount is AccessAccount {
         currentAddress = allBallots[_ballotID].currentAddress;
         newAddress = allBallots[_ballotID].newAddress;
         actedOn = allBallots[_ballotID].actedOn;
-        actedOn = allBallots[_ballotID].bankVoted;
-        actedOn = allBallots[_ballotID].banksVote;
+        bankVoted = allBallots[_ballotID].bankVoted;
+        banksVote = allBallots[_ballotID].banksVote;
     }
 
     /**
@@ -201,7 +201,7 @@ contract TrustAccount is AccessAccount {
                 allBallots[_ballotID].banksVote = false;
             }
         } 
-        // else {
+        else {
             require(allBallots[_ballotID].startTime > 0);
             require(allBallots[_ballotID].startTime <= now && allBallots[_ballotID].endTime > now);
             allVotesForBallot[_ballotID].push(Vote ({
@@ -209,28 +209,8 @@ contract TrustAccount is AccessAccount {
                 vote: _vote,
                 ballotID: _ballotID
             }));
-        // }
+        }
     }
-
-    // /**
-    //   * @param _newOwnerAddress : the address of the new owner.
-    //   * @dev allows the user to change the wallet assosiated with the account. 
-    //   *     The require ensures that this function cannot be called on the trust account
-    //   *     from the parent function (this function).
-    //   */
-    // function changeOwner(address _oldOwnerAddress, address _newOwnerAddress)
-    //     public
-    //     isBank()
-    //     isFrozen()
-    // {
-    //     AccessAccount.freeze();
-
-    //     allOwners[ownersKeys[_oldOwnerAddress]].isOwner = false;
-    //     ownersKeys[_newOwnerAddress] = ownersKeys[_oldOwnerAddress];
-    //     allOwners[ownersKeys[_newOwnerAddress]].isOwner == true;
-
-    //     AccessAccount.defrost();
-    // }
 
     /**
       * @param _to : the account to send the funds to 
@@ -250,6 +230,8 @@ contract TrustAccount is AccessAccount {
         AccessAccount.defrost();
     }
 
+    event LogBallotID(uint _ballotID);
+
     /**
       * @param _current : the current address of the owner
       * @param _new : the new address of the owner
@@ -266,9 +248,11 @@ contract TrustAccount is AccessAccount {
         AccessAccount.freeze();
 
         require(allOwners[ownersKeys[_current]].isOwner, "Current address not recognised");
-        createBallot(VoteType.changeOwner, _current, _new, 0);
+        uint ballotID = createBallot(VoteType.changeOwner, _current, _new, 0);
 
         AccessAccount.defrost();
+        emit LogBallotID(ballotID);
+        return ballotID;
     }
 
     /**
@@ -315,10 +299,10 @@ contract TrustAccount is AccessAccount {
       */
     function votePassed(uint _ballotID)
         private 
-        view
         returns(bool)
     {
         if(allBallots[_ballotID].bankVoted){
+            allBallots[_ballotID].actedOn = true;
             if(allBallots[_ballotID].banksVote)
                 return true;
             else 
@@ -326,6 +310,7 @@ contract TrustAccount is AccessAccount {
         } else {
             require(allBallots[_ballotID].endTime < now, "Voting time has not ended. Please try again later");
             require(allBallots[_ballotID].actedOn == false, "Withdraw has already taken place");
+            allBallots[_ballotID].actedOn = true;
             require(allVotesForBallot[_ballotID].length > 0);
 
             uint trueVotes = 0; 
@@ -381,9 +366,10 @@ contract TrustAccount is AccessAccount {
         require(allBallots[_ballotID].typeOfVote == VoteType.changeOwner);
         require(votePassed(_ballotID));
 
-        allBallots[_ballotID].actedOn = true;
+        
         allOwners[ownersKeys[allBallots[_ballotID].currentAddress]].isOwner = false;
-        ownersKeys[allBallots[_ballotID].newAddress] = ownersKeys[allBallots[_ballotID].currentAddress];
+        noOfOwners++;
+        ownersKeys[allBallots[_ballotID].newAddress] = noOfOwners;
         allOwners[ownersKeys[allBallots[_ballotID].newAddress]].isOwner = true;
 
         AccessAccount.defrost();
