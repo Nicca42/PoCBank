@@ -4,11 +4,11 @@ Proof of concept for an abstraction of a simplified bank.
 ## How to run
 Clone the repository and enter the root directory.
 Open a Ganache instance and have it running on port 7545 then:
-
-	npm install
-Truffle compile
-Truffle test
-
+```
+npm install
+truffle compile
+truffle test
+```
 ## Contracts
 The project consists of four contracts: AccessAccount, DelayAccount, Trust(shared access) account and the bank. The access account is the parent contract for the other accounts. The access account contains all base functionality that is then overridden in the child contracts as and when needed. All accounts are subject to an account limit, which is determined by the bank on creation. This can be changed later by the bank.
 
@@ -25,15 +25,15 @@ The block below shows the code test coverage. It comprehensively covers all core
 
 ```
 --------------------|----------|----------|----------|----------|----------------|
-File | % Stmts | % Branch | % Funcs | % Lines |Uncovered Lines |
+File 	            | % Stmts  | % Branch | % Funcs  | % Lines  |Uncovered Lines |
 --------------------|----------|----------|----------|----------|----------------|
-contracts/ | 89.78 | 65.31 | 89.09 | 91.14 | |
-AccessAccount.sol | 94.29 | 70 | 88.24 | 94.87 | 80,234 |
-Bank.sol | 91.11 | 50 | 89.47 | 91.38 | 35,36,37,38,94 |
-DelayAccount.sol | 100 | 75 | 100 | 100 | |
-TrustAccount.sol | 85.56 | 64.52 | 87.5 | 88.24 |... 309,444,445 |
+contracts/          | 89.78    | 65.31    | 89.09    | 91.14    |                |
+AccessAccount.sol   | 94.29    | 70       | 88.24    | 94.87    | 80,234         |
+Bank.sol            | 91.11    | 50       | 89.47    | 91.38    | 35,36,37,38,94 |
+DelayAccount.sol    | 100      | 75       | 100      | 100      |                |
+TrustAccount.sol    | 85.56    | 64.52    | 87.5     | 88.24    | 309,444,445    |
 --------------------|----------|----------|----------|----------|----------------|
-All files | 89.78 | 65.31 | 89.09 | 91.14 | |
+All files           | 89.78    | 65.31    | 89.09    | 91.14    |                |
 --------------------|----------|----------|----------|----------|----------------|
 ```
 
