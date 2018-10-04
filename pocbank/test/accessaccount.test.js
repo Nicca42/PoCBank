@@ -17,45 +17,48 @@ var AccessAccount = artifacts.require("./AccessAccount.sol");
   * Test Index 
   * tests in this file:
   * 
-  * (Access)Testing the creation of an account via the contract
-  *     test 1: contract can access balance
-  *     test 2: contract can access frozen status
+  *>> INITIAL TESTS  
+  *     (Access)Testing the creation of an account via the contract
+  *         test 1: contract can access balance
+  *         test 2: contract can access frozen status
   * 
-  * (Access)Testing freeze
-  *     test 1: contract lock state changes
-  *     test 2: contract lock state is locked (true)
-  *     test 3: contract cannot deposit when locked
-  *     test 4: contract cannot withdraw when locked
-  *     test 5: contract unlocked is the same as pre lock
-  *     test 6: contract lock status is now false 
-  *     test 7: contract balance increased after unlocked
+  *     (Access)Testing freeze
+  *         test 1: contract lock state changes
+  *         test 2: contract lock state is locked (true)
+  *         test 3: contract cannot deposit when locked
+  *         test 4: contract cannot withdraw when locked
+  *         test 5: contract unlocked is the same as pre lock
+  *         test 6: contract lock status is now false 
+  *         test 7: contract balance increased after unlocked
   * 
-  * (Access)Testing deposit
-  *     test 1: contracts balance changes with deposit
-  *     test 2: contract cannot hold more value then limit 
-  *     test 3: contract can hold the limit
+  *>> VALUE TESTS 
+  *     (Access)Testing deposit
+  *         test 1: contracts balance changes with deposit
+  *         test 2: contract cannot hold more value then limit 
+  *         test 3: contract can hold the limit
   * 
-  * (Access)Testing withdraw
-  *     test 1: contract can be deposited into
-  *     test 2: contract can be withdrawn from
+  *     (Access)Testing withdraw
+  *         test 1: contract can be deposited into
+  *         test 2: contract can be withdrawn from
   * 
-  * (Access)Testing the owner only functions
-  *     test 2: checks isOwner() function
-  *     test 3: checks isOwner() function
-  *     test 4: checks isBank() funcution
-  *     test 5: checks isBank() function
-  *     test 6: checks isOwner() function
+  *>> OWNER SENSITIVE TESTS 
+  *     (Access)Testing the owner only functions
+  *         test 2: checks isOwner() function
+  *         test 3: checks isOwner() function
+  *         test 4: checks isBank() funcution
+  *         test 5: checks isBank() function
+  *         test 6: checks isOwner() function
   * 
-  * (Access)Testing changing of ownership
-  *     test 1: contracts owner has changed
-  *     test 2: contracts lock state changes
-  *     test 3: contract lock state is now true
+  *     (Access)Testing changing of ownership
+  *         test 1: contracts owner has changed
+  *         test 2: contracts lock state changes
+  *         test 3: contract lock state is now true
   * 
-  * (Access)Testing dissolve
-  *     test 1: becuse this throws an:
-  *             'attempting to run transaction which calls a contract function, 
-  *             but recipient address ... is not a contract address'
-  *         it is surrounded in a try catch  
+  *     (Access)Testing dissolve
+  *         test 1: becuse this throws an:
+  *                 'attempting to run transaction which calls a contract function, 
+  *                 but recipient address ... is not a contract address'
+  *             so it is surrounded in a try catch  
   */
 
 contract('Access Account Tests', function(accounts) {
@@ -66,6 +69,15 @@ contract('Access Account Tests', function(accounts) {
     const delayAccountOwner = accounts[3];
     const trustAccountOwner = accounts[4];
 
+
+
+/**
+  * INITIAL TESTS  
+  */
+
+    /**
+      * @dev tests the creation of an access account via the contract 
+      */
     it("(Access)Testing the creation of an account via the contract", async() => {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = accessAccount.address;
@@ -80,6 +92,9 @@ contract('Access Account Tests', function(accounts) {
         assert.equal(locked, false, "Checking access account functions, getFrozen()");
     });
 
+    /**
+      * @dev tests the freezing and unfreezing functinality 
+      */
     it("(Access)Testing freeze", async() => {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = await accessAccount.address;
@@ -117,6 +132,15 @@ contract('Access Account Tests', function(accounts) {
         assert.equal(balance, 200, "Checking account balance increases by 200");
     });
 
+
+
+/**
+  * VALUE TESTS 
+  */
+
+    /**
+      * @dev tests the depositing functionality 
+      */
     it("(Access)Testing deposit", async() => {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = await accessAccount.address;
@@ -138,6 +162,9 @@ contract('Access Account Tests', function(accounts) {
         assert.equal(balance, 4000, "Checking account can hold limit");
     });
 
+    /**
+      * @dev tests the withdraw functionality 
+      */
     it("(Access)Testing withdraw", async() => {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = await accessAccount.address;
@@ -155,6 +182,15 @@ contract('Access Account Tests', function(accounts) {
         assert.equal(balance, 1000-200, "Checking balance can be changed with withdraw");
     });
 
+
+
+/**
+  * OWNER SENSITIVE TESTS 
+  */
+
+    /**
+      * tests the owner only functions  
+      */
     it("(Access)Testing the owner only functions", async() => {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = await accessAccount.address;
@@ -176,6 +212,9 @@ contract('Access Account Tests', function(accounts) {
         await assertRevert(accessAccountContact.withdraw(200, {from: trustAccountOwner}), EVMRevert);
     });
 
+    /**
+      * @dev tests the changing of ownership 
+      */
     it("(Access)Testing changing of ownership", async() => {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = await accessAccount.address;
@@ -199,6 +238,9 @@ contract('Access Account Tests', function(accounts) {
         assert.equal(lock, true, "Account is now locked");
     });
 
+    /**
+      * @dev tests the dissolving of account 
+      */
     it("(Access)Testing dissolve", async() => {
         let accessAccount = await AccessAccount.new(accessAccountOwner, 0, 4000, {from: userWallet});
         let accessAccountAddress = await accessAccount.address;

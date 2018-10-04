@@ -93,6 +93,7 @@ var Bank = artifacts.require("./Bank.sol");
   *             'attempting to run transaction which calls a contract function, 
   *             but recipient address ... is not a contract address' SO I surrounded it 
   *             in a try catch
+  *         test 2: bank dose not recvive funds as they have been divided amongst owners
   */
 
 contract('Trust Account Tests', function(accounts) {
@@ -172,7 +173,7 @@ contract('Trust Account Tests', function(accounts) {
     });
 
 
-    
+
 /**
   * VALUE TESTS 
   */
@@ -433,6 +434,7 @@ contract('Trust Account Tests', function(accounts) {
 
             let bankBalance = await bankContract.getBalance({from: bankOwner});
 
+            //test 2: bank dose not recvive funds as they have been divided amongst owners
             assert.equal(bankBalance["c"][0], 0, "Checking balance of contract is 0, and contract value is distributed");
     });
 })

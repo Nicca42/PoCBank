@@ -236,6 +236,13 @@ contract TrustAccount is AccessAccount {
         AccessAccount.defrost();
     }
 
+    /**
+      * @param _current : the current address of the owner
+      * @param _new : the new address of the owner
+      * @dev this is how owners can request to change their address
+      * @notice the other owners will vote on this. If the vote dose 
+      *     not pass the request will fail and will not be able to be acted on.
+      */
     function requestChangeOwnerAddress(address _current, address _new)
         public
         isOwner()
@@ -249,6 +256,13 @@ contract TrustAccount is AccessAccount {
         AccessAccount.defrost();
     }
 
+    /**
+      * @param _new : the address of the new owner
+      * @dev this is where an existing owner can request to add
+      *     a new owner. 
+      * @notice This will be voted for by the other owners, 
+      *     and if it fails the request will not be able to be acted on.
+      */
     function addOwnerRequest(address _new)
         public
         isOwner()
@@ -261,6 +275,11 @@ contract TrustAccount is AccessAccount {
         AccessAccount.defrost();
     }
 
+    /**
+      * @param _toRemove : the address of the owner
+      * @dev this allows owners to vote out fellow owners. 
+      * @notice Owners can vote out other owners.
+      */
     function removeOwnerRequest(address _toRemove)
         public
         isOwner()
@@ -269,7 +288,7 @@ contract TrustAccount is AccessAccount {
         AccessAccount.freeze();
 
         require(allOwners[ownersKeys[_toRemove]].isOwner, "Owner has already been removed");
-        createBallot(VoteType.addOwner, _toRemove, 0x0, 0);
+        createBallot(VoteType.removeOwner, _toRemove, 0x0, 0);
 
         AccessAccount.defrost();
     }
@@ -304,7 +323,7 @@ contract TrustAccount is AccessAccount {
     }
 
     /**
-      * @param _ballotID : the ballots ID that the owner whishes to act on
+      * @param _ballotID : the ballots ID that the owner wants to act on
       * @dev allows an owner to act on a withdraw request
       */
     function withdraw(uint _ballotID)
@@ -315,6 +334,7 @@ contract TrustAccount is AccessAccount {
         AccessAccount.freeze();
 
         require(allBallots[_ballotID].amount < AccessAccount.balance, "Insufficent funds");
+        require(allBallots[_ballotID].typeOfVote == VoteType.withdrawRequest);
         require(votePassed(_ballotID));
 
         allBallots[_ballotID].actedOn = true;
@@ -324,6 +344,10 @@ contract TrustAccount is AccessAccount {
         AccessAccount.defrost();
     }
 
+    /**
+      * @param _ballotID : the ballot ID that the owner wants to act on
+      * @dev allows an owner to act on a change owner requst
+      */
     function changeOwnerAddress(uint _ballotID)
         public
         isOwner()
@@ -332,17 +356,20 @@ contract TrustAccount is AccessAccount {
         AccessAccount.freeze();
 
         require(allOwners[ownersKeys[allBallots[_ballotID].currentAddress]].isOwner);
+        require(allBallots[_ballotID].typeOfVote == VoteType.changeOwner);
         require(votePassed(_ballotID));
 
         allBallots[_ballotID].actedOn = true;
         allOwners[ownersKeys[allBallots[_ballotID].currentAddress]].isOwner = false;
         ownersKeys[allBallots[_ballotID].newAddress] = ownersKeys[allBallots[_ballotID].currentAddress];
-        // uint key = ownersKeys[allBallots[_ballotID].currentAddress];
-        // owners[key] = allBallots[_ballotID].newAddress;
 
         AccessAccount.defrost();
     }
 
+    /**
+      * @param _ballotID : the ballot ID that the owner wants to act on
+      * @dev allows an owner to act on an add request
+      */
     function addOwner(uint _ballotID)
         public
         isOwner()
@@ -351,6 +378,7 @@ contract TrustAccount is AccessAccount {
         AccessAccount.freeze();
 
         require(allOwners[ownersKeys[allBallots[_ballotID].currentAddress]].isOwner);
+        require(allBallots[_ballotID].typeOfVote == VoteType.addOwner);
         require(votePassed(_ballotID));
 
         allBallots[_ballotID].actedOn = true;
@@ -360,11 +388,15 @@ contract TrustAccount is AccessAccount {
             isOwner: true,
             ownerWallet: allBallots[_ballotID].newAddress
         });
-        // owners[noOfOwners] = allBallots[_ballotID].newAddress;
+        owners.push(allBallots[_ballotID].newAddress);
 
         AccessAccount.defrost();
     }
 
+    /**
+      * @param _ballotID : the ballot ID that the owner wants to act on
+      * @dev allows an owner to act on a remove request
+      */
     function removeOwner(uint _ballotID)
         public
         isOwner()
@@ -373,6 +405,9 @@ contract TrustAccount is AccessAccount {
         AccessAccount.freeze();
 
         require(votePassed(_ballotID));
+        require(allBallots[_ballotID].typeOfVote == VoteType.removeOwner);
+
+        allBallots[_ballotID].actedOn = true;
         allOwners[ownersKeys[allBallots[_ballotID].currentAddress]].isOwner = false;
         allOwners[ownersKeys[allBallots[_ballotID].currentAddress]].ownerWallet = 0x0;
 

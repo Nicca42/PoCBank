@@ -1,16 +1,22 @@
 pragma solidity ^0.4.24;
 
 contract AccessAccount{
+    //the banks address
     address bankAddress;
+    //the owners address
     address onwerAddress;
+    //the balance of the account
     uint balance;
+    //the accounts limit
     uint accountLimit;
+    //if the account is frozen
     bool frozen;
+    //the different types of acounts
     enum AccountType {access, delay, trust}
+    //this accounts type
     AccountType thisAccountType;
 
     event LogCreatedAccessAcount(address _owner, address _bank, AccountType _accountType);
-    event LogUnexpectedRevert(string _where);
 
     /**
       * @dev checks that the msg.sender is an owner of the contract
@@ -74,15 +80,22 @@ contract AccessAccount{
         return balance;
     }
 
+    /**
+      * @dev returns the owner of access and delay accounts. 
+      */
     function getOwner()
         public
         view
         isOwner()
         returns(address)
     {
+        require(thisAccountType != AccountType.trust, "Please use getOwners() in trust contract");
         return onwerAddress;
     }
 
+    /**
+      * @dev returns the limit of the account. The caller must be an owner
+      */
     function getLimit()
         public
         view
@@ -92,6 +105,13 @@ contract AccessAccount{
         return accountLimit;
     }
 
+    /** 
+      * @param _newLimit : the new limit
+      * @dev allows the bank to change the limit of an account. 
+      * @notice there are no checks here as the bank contains them.
+      *     The chekcs are to ensure that the limit is not less than 
+      *     the current balance as to prevent errors of exceeding limits. 
+      */
     function setLimit(uint _newLimit)
         public
         isBank()
@@ -185,20 +205,21 @@ contract AccessAccount{
     {
         freeze();
 
-        emit LogUnexpectedRevert("(in withdraw) after freezing account");
-
         require(thisAccountType == AccountType.access, "Please use withdraw function in child contract");
-
-        emit LogUnexpectedRevert("(after 1 require) after trust/delay require");
-
         require(_amount <= balance, "Cannot withdraw more funds than available");
-
-        emit LogUnexpectedRevert("(after 2 require) after amount gets checked against balance");
-
         balance -= _amount;
         onwerAddress.transfer(_amount);
 
-        emit LogUnexpectedRevert("() after transfering amount");
         defrost();
+    }
+
+    /**
+      * @dev fallback function adds value to balance
+      */
+    function ()
+        public
+        payable
+    {
+        balance+= msg.value;
     }
 }
