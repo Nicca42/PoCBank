@@ -106,6 +106,8 @@ contract('Trust Account Tests', function(accounts) {
     const trustAccountOwnerThree = accounts[6];
     const trustAccountOwnerFour = accounts[7];
 
+
+
 /**
   * INITIAL TESTS 
   */
@@ -169,6 +171,8 @@ contract('Trust Account Tests', function(accounts) {
         assert.equal(balance, 200, "Checking account balance increases by 200");
     });
 
+
+    
 /**
   * VALUE TESTS 
   */
@@ -225,6 +229,8 @@ contract('Trust Account Tests', function(accounts) {
         //test 2: contract balance reduced by amount withdrawn
         assert.equal(balanceAfter["c"][0], 100, "Checking balance after changes by withdraw");
     });
+
+
 
 /**
   * VOTE TESTS
@@ -332,11 +338,11 @@ contract('Trust Account Tests', function(accounts) {
         assert.equal(balance["c"][0], 0, "Checking account can be accessed by new owner");
     });
 
-?
+
+
 /**
   * OWNER CONTROLLED TESTS 
   */
-
 
     /**
       * @dev checks all functions that the trust account has that are restricted to the owners

@@ -158,6 +158,18 @@ contract TrustAccount is AccessAccount {
     }
 
     /**
+      * @dev returns all the owners of the trust account
+      */
+    function getOwners()
+        public
+        view
+        isOwner()
+        returns(address[])
+    {
+        return owners;
+    }
+
+    /**
       * @param _ballotID : the ballot ID
       * @param _vote : their vote for the ballot
       */
@@ -367,18 +379,17 @@ contract TrustAccount is AccessAccount {
         AccessAccount.defrost();
     }
 
-    event LogProgress(string _desc);
-    event LogValue(uint _value);
-
+    /**
+      * @dev Allows the bank to dissolve the account. 
+      * @notice the balance of the contract gets split between all the 
+      *     currently active owners. 
+      */
     function dissolve()
         public
         isBank()
     {
-        emit LogProgress("in disolve (trust)");
         frozen =  true;
         uint valuePerOwnerCounter = 0;
-        emit LogProgress("value per owner");
-        emit LogValue(valuePerOwner);
 
         for(uint i = 0; i <= noOfOwners ; i++){
             if(allOwners[i].isOwner)
