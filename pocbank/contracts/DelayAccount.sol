@@ -3,18 +3,23 @@ pragma solidity ^0.4.24;
 import "./AccessAccount.sol";
 
 contract DelayAccount is AccessAccount {
+    //withdraw requests with the time, amount, who its to and if its been withdrawn
     struct WithdrawRequests {
         uint timeRequested;
         uint amountRequested;
         address to;
         bool withdrawn;
     }
+    //the number of requests
     uint numberOfRequests = 1;
     //only added to if request is possible
     mapping(uint => WithdrawRequests) requests;
 
     event LogCreatedDelayAccount(address _owner, address _bank, AccessAccount.AccountType _chosenAccount);
 
+    /**
+      * @dev allows for the creation of a delay account. 
+      */
     constructor(address _owner, uint _limit)
         AccessAccount(_owner, AccessAccount.AccountType.delay, _limit)
         public
@@ -34,6 +39,7 @@ contract DelayAccount is AccessAccount {
     function requestWithdraw(uint _amount, address _to)
         public
         isOwner()
+        isFrozen()
         returns(uint)
     {
         AccessAccount.freeze();

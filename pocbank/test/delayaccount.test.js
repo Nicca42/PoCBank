@@ -23,6 +23,55 @@ const {
 
 var DelayAccount = artifacts.require("./DelayAccount.sol");
 
+/**
+  * Test Index 
+  * tests in this file:
+  * 
+  *>> INITIAL TESTS  
+  *     (Delay)Testing the creation of an account via the contract
+  *         test 1: contract funtion getbalance() can be called 
+  *         test 2: contract function getFrozen() can be called
+  *     
+  *     (Delay)Testing freeze and defrost
+  *         test 1: the accounts frozen status has changed
+  *         test 2: contract lock status is true
+  *         test 3: contract cannot deposit when locked
+  *         test 4: contract cannot withdraw when locked
+  *         test 5: contract unlock is same as prelock
+  *         test 6: contract lock is now false
+  *         test 7: contract balance increased after unlocked
+  * 
+  *>> VALUE TESTS
+  *     (Delay)Testing deposit
+  *         test 1: contracts balance changes with deposit
+  *         test 2: contract cannot hold more value then limit
+  *         test 3: contract can hold the limit
+  * 
+  *     (Delay)Testing withdraw
+  *         test 1: contract cannot call withdraw in access acount (parent contract)
+  *         test 2: checking the account cannot withdraw before time has passed
+  *         test 3: contract balance changes after withdraw 
+  * 
+  *>> OWNER SENSTIVIVE TESTS 
+  *     (Delay)Testing the owner only functions
+  *         test 1: checks isOwner() function
+  *         test 2: checks isOwner() function
+  *         test 3: checks isBank() funcution
+  *         test 4: checks isBank() function
+  *         test 5: checks isOwner() function
+  * 
+  *     (Delay)Testing changing of ownership
+  *         test 1: contracts owner has changed
+  *         test 2: contracts lock state changes
+  *         test 3: contract lock state is now true
+  * 
+  *     (Delay)Testing dissolve
+  *         test 1: becuse this throws a 
+  *                 'ttempting to run transaction which calls a contract function, 
+  *                 but recipient address ... is not a contract address'
+  *             it is surrounded in a try catch
+  */
+
 contract('Delay Account Tests', function(accounts) {
 
     const bankOwner = accounts[0];
@@ -31,6 +80,15 @@ contract('Delay Account Tests', function(accounts) {
     const delayAccountOwner = accounts[3];
     const trustAccountOwner = accounts[4];
 
+
+
+/**
+  * INITIAL TESTS  
+  */
+
+    /**
+      * @dev tests the creation of an account through the contract
+      */
     it("(Delay)Testing the creation of an account via the contract", async() => {
         let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
         let delayAccountAddress = await delayAccount.address;
@@ -45,7 +103,10 @@ contract('Delay Account Tests', function(accounts) {
         assert.equal(locked, false, "Checking access account functions, getFrozen()");
     });
 
-    it("(Delay)Testing freeze", async() => {
+    /**
+      * @dev tests the freeze and defrost 
+      */
+    it("(Delay)Testing freeze and defrost", async() => {
         let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
         let delayAccountAddress = await delayAccount.address;
         let delayAccountContact = await DelayAccount.at(delayAccountAddress);
@@ -81,6 +142,15 @@ contract('Delay Account Tests', function(accounts) {
         assert.equal(balance, 200, "Checking account balance increases by 200");
     });
 
+
+
+/**
+  * VALUE TESTS 
+  */
+
+  /**
+    * @dev tests the contract ability to deposit
+    */
     it("(Delay)Testing deposit", async() => {
         let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
         let delayAccountAddress = await delayAccount.address;
@@ -102,6 +172,9 @@ contract('Delay Account Tests', function(accounts) {
         assert.equal(balance, 4000, "Checking account can hold limit");
     });
 
+    /**
+      * @dev tests contracts ability to request a withdraw and withdraw 
+      */
     it("(Delay)Testing withdraw", async() => {
         let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
         let delayAccountAddress = await delayAccount.address;
@@ -127,23 +200,39 @@ contract('Delay Account Tests', function(accounts) {
         assert.equal(balance, 100, "Checking balance has changed and is correct after withdraw");
     });
 
+
+
+/**
+  * OWNER SENSTIVIVE TESTS 
+  */
+
+    /**
+      * @dev tests the owner only functions 
+      */
     it("(Delay)Testing the owner only functions", async() => {
         let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
         let delayAccountAddress = await delayAccount.address;
         let delayAccountContact = await DelayAccount.at(delayAccountAddress);
 
-        //test 2: checks isOwner() function
+        //test 1: checks isOwner() function
         await assertRevert(delayAccountContact.freeze({from: trustAccountOwner}), EVMRevert);
-        //test 3: checks isOwner() function
+
+        //test 2: checks isOwner() function
         await assertRevert(delayAccountContact.defrost({from: trustAccountOwner}), EVMRevert);
-        //test 4: checks isBank() funcution
+
+        //test 3: checks isBank() funcution
         await assertRevert(delayAccountContact.dissolve({from: trustAccountOwner}), EVMRevert);
-        //test 5: checks isBank() function
+
+        //test 4: checks isBank() function
         await assertRevert(delayAccountContact.changeOwner(trustAccountOwner, {from: trustAccountOwner}), EVMRevert);
-        //test 6: checks isOwner() function
+        
+        //test 5: checks isOwner() function
         await assertRevert(delayAccountContact.withdraw(200, {from: trustAccountOwner}), EVMRevert);
     });
 
+    /**
+      * @dev tests the changing of ownership
+      */
     it("(Delay)Testing changing of ownership", async() => {
         let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
         let delayAccountAddress = await delayAccount.address;
@@ -167,6 +256,9 @@ contract('Delay Account Tests', function(accounts) {
         assert.equal(lock, true, "Account is now locked");
     });
 
+    /**
+      * @dev tests the contracts ability to dissolve 
+      */
     it("(Delay)Testing dissolve", async() => {
         let delayAccount = await DelayAccount.new(delayAccountOwner, 4000, {from: userWallet});
         let delayAccountAddress = await delayAccount.address;

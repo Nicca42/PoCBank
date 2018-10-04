@@ -70,6 +70,17 @@ contract AccessAccount{
     }
 
     /**
+      * @dev returns the type of account
+      */
+    function getAccountType()
+        public
+        view
+        returns(AccountType)
+    {
+        return thisAccountType;
+    }
+
+    /**
       * @dev allows for anyone to check the balance of an account
       */
     function getBalance()

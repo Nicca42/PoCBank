@@ -52,7 +52,11 @@ var TrustAccount = artifacts.require("./TrustAccount.sol");
   *         test 6: contract balance now 300
   * 
   *     (Bank)Testing freezing and defrosting of trust account
-  *         TODO
+  *         test 1: contract lock status changes
+  *         test 2 : contract is locked
+  *         test 3: contract cannot use lock sensitive functions
+  *         test 4: contract is back to origional state
+  *         test 5: contract is unlocked
   * 
   *>> CHANGING OWNERSHIP OF CONTRACT TEST
   *     (Bank)Testing changing of access account ownership
@@ -78,13 +82,23 @@ var TrustAccount = artifacts.require("./TrustAccount.sol");
   * 
   *>> DISSOLVING  
   *     (Bank)Testing dissolving of access account
-  *         TODO
+  *         test 1: becuse this throws an
+  *             'attempting to run transaction which calls a contract function, 
+  *             but recipient address ... is not a contract address'
+  *             it is surrounded in a try catch
   * 
   *     (Bank)Testing dissolving of delay account
-  *         TODO
+  *         test 1: becuse this throws an
+  *             'attempting to run transaction which calls a contract function, 
+  *             but recipient address ... is not a contract address'
+  *             it is surrounded in a try catch
   * 
   *     (Bank)Testing dissolving of trust account
-  *         TODO
+  *         test 1: becuse this throws an
+  *             'attempting to run transaction which calls a contract function, 
+  *             but recipient address ... is not a contract address'
+  *             it is surrounded in a try catch
+  *         test 2: bank dose not recvive funds as they have been divided amongst owners
   */
 
 contract('Bank Tests', function(accounts) {
@@ -120,7 +134,7 @@ contract('Bank Tests', function(accounts) {
         //test 1: contract is created and can be read from
         assert.equal(lock, false, "Checking access acount created and can be accessed");
 
-        await bank.lockAddress(accessAccountOwner, {from: bankOwner});
+        await bank.lockAccount(accessAccountOwner, {from: bankOwner});
         let locked = await accessAccountContract.getFrozen();
 
         //test 2: contract is created and can be read from
@@ -139,7 +153,7 @@ contract('Bank Tests', function(accounts) {
         //test 1: contract is created and can be read from
         assert.equal(lock, false, "Checking delay account was created and can be accessed");
 
-        await bank.lockAddress(delayAccountOwner, {from: bankOwner});
+        await bank.lockAccount(delayAccountOwner, {from: bankOwner});
         let locked = await delayAccountContract.getFrozen();
 
         //test 2: contract can be accessed
@@ -221,6 +235,7 @@ contract('Bank Tests', function(accounts) {
         let delayAccountAddress = await bank.getBankAccountAddress(delayAccountOwner, {from: bankOwner});
         let delayAccountContract = await DelayAccount.at(delayAccountAddress);
         let lock = await delayAccountContract.getFrozen();
+        await delayAccountContract.deposit({value: 300});
         bank.lockAccount(delayAccountOwner, {from: bankOwner});
         let locked = await delayAccountContract.getFrozen();
 
@@ -231,11 +246,11 @@ contract('Bank Tests', function(accounts) {
         assert.equal(locked, true, "Checking the contract is now locked");
 
         //test 3: contract cannot perform frozen sensitive functions
-        // assertRevert(delayAccountContract.deposit({value: 300}), EVMRevert);
+        await assertRevert(delayAccountContract.freeze({from: bankOwner}), EVMRevert);
 
         await bank.unlockAccount(delayAccountOwner, {from: bankOwner});
         let unlocked = await delayAccountContract.getFrozen();
-        await delayAccountContract.deposit({value: 300});
+        await delayAccountContract.deposit({value: 100});
         let balance = await delayAccountContract.getBalance();
 
         //test 4: contract is now unlocked
@@ -245,22 +260,39 @@ contract('Bank Tests', function(accounts) {
         assert.equal(unlocked, false, "Checking the lock is false");
 
         //test 6: contract balance now 300
-        assert.equal(balance["c"][0], 300, "Checking contract can be used after unlock");
+        assert.equal(balance["c"][0], 400, "Checking contract can be used after unlock");
     });
 
     /**
       * 
       */
     it("(Bank)Testing freezing and defrosting of trust account", async() => {
-        // let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
-        // await bank.creatingTrustAccount(owners, {from: userWallet});
-        // let trustAccountAddress = await bank.getTrustAccountAddress(0, {from: bankOwner});
-        // let trustAccountContract = await TrustAccount.at(trustAccountAddress);
-        // let lock = await trustAccountContract.getFrozen();
-        // bank.lockAccount(trustAccountOwnerThree, {from: bankOwner});
-        // let locked = await trustAccountContract.getFrozen();
+        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        await bank.creatingTrustAccount(owners, {from: userWallet});
+        let trustAccountAddress = await bank.getTrustAccountAddress(0, {from: bankOwner});
+        let trustAccountContract = await TrustAccount.at(trustAccountAddress);
+        await trustAccountContract.deposit({value: 400});
+        let lock = await trustAccountContract.getFrozen();
+        bank.lockTrustAccount(0, {from: bankOwner});
+        let locked = await trustAccountContract.getFrozen();
 
-        
+        //test 1: contract lock status changes
+        assert.notEqual(lock, locked, "Checking lock status changes");
+
+        //test 2 : contract is locked
+        assert.equal(locked, true, "Checking the contract is now locked");
+
+        //test 3: contract cannot use lock sensitive functions
+        await assertRevert(trustAccountContract.requestWithdraw(trustAccountOwnerThree, 200, {from: trustAccountOwnerThree}), EVMRevert);
+
+        await bank.unlockTrustAccount(0, {from: bankOwner});
+        let unlocked = await trustAccountContract.getFrozen();
+
+        //test 4: contract is back to origional state
+        assert.equal(lock, unlocked, "Checking contract is back to origional state");
+
+        //test 5: contract is unlocked
+        assert.equal(unlocked, false, "Checking the account is unlocked");
     });
 
 
@@ -309,12 +341,17 @@ contract('Bank Tests', function(accounts) {
       *     changing ownership between entities)
       */
     it("(Bank)Testing changing of trust account ownership", async() => {
-        // let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
-        // await bank.creatingTrustAccount(owners, {from: userWallet});
-        // let trustAccountAddress = await bank.getTrustAccountAddress(1, {from: bankOwner});
-        // let trustAccountContract = await TrustAccount.at(trustAccountAddress);
+        let owners = [trustAccountOwnerOne, trustAccountOwnerTwo, trustAccountOwnerThree, trustAccountOwnerFour];
+        await bank.creatingTrustAccount(owners, {from: userWallet});
+        let trustAccountAddress = await bank.getTrustAccountAddress(0, {from: bankOwner});
+        let trustAccountContract = await TrustAccount.at(trustAccountAddress);
+        trustAccountContract.deposit({value: 300});
+        await bank.changeOwnershipTrustGroup(trustAccountOwnerTwo, userWallet, 0, {from: bankOwner});
+        //test 1: contract dose not allow owner sensitive functions to be called by old owner
+        // await assertRevert(trustAccountContract.requestWithdraw(trustAccountOwnerTwo, 100, {from: trustAccountOwnerTwo}), EVMRevert);
 
-        // await bank.changeOwnershipTrustGroup(trustAccountOwnerTwo, userWallet, 1, {from: bankOwner});
+        // let newOnwers = await trustAccountContract.getOwners({from: userWallet});
+        // console.log(newOnwers);
     });
 
 
@@ -424,24 +461,29 @@ contract('Bank Tests', function(accounts) {
       * @dev tests the ability of the bank to dissolve a trust account 
       */
     it("(Bank)Testing dissolving of trust account", async() => {
-        // let owners = [trustAccountOwnerOne, bankOwner, trustAccountOwnerThree, trustAccountOwnerFour];
-        // await bank.creatingTrustAccount(owners, {from: userWallet});
-        // let trustAccountAddress = await bank.getTrustAccountAddress(0, {from: bankOwner});
-        // let trustAccountContract = await TrustAccount.at(trustAccountAddress);
-        // await bank.dissolveAccount(trustAccountAddress);
+        let owners = [trustAccountOwnerOne, bankOwner, trustAccountOwnerThree, trustAccountOwnerFour];
+        await bank.creatingTrustAccount(owners, {from: userWallet});
+        let trustAccountAddress = await bank.getTrustAccountAddress(0, {from: bankOwner});
+        let trustAccountContract = await TrustAccount.at(trustAccountAddress);
+        await bank.dissolveAccount(trustAccountAddress);
 
-        // //test 1: becuse this throws an
-        //     //'attempting to run transaction which calls a contract function, 
-        //     //but recipient address ... is not a contract address'
-        //     //it is surrounded in a try catch
-        //     try {
-        //         await trustAccountContract.freeze({from: userWallet});
-        //         //if it works it should never reach here
-        //         assert.equal(true, false, "");
-        //     } catch(e) {
-        //         //when the .freeze() fails it should skip the assert and this should run
-        //         assert.equal(true, true, "");
-        //     }
+        //test 1: becuse this throws an
+            //'attempting to run transaction which calls a contract function, 
+            //but recipient address ... is not a contract address'
+            //it is surrounded in a try catch
+            try {
+                await trustAccountContract.freeze({from: userWallet});
+                //if it works it should never reach here
+                assert.equal(true, false, "");
+            } catch(e) {
+                //when the .freeze() fails it should skip the assert and this should run
+                assert.equal(true, true, "");
+            }
+
+            let bankBalance = await bank.getBalance({from: bankOwner});
+
+            //test 2: bank dose not recvive funds as they have been divided amongst owners
+            assert.equal(bankBalance["c"][0], 0, "Checking balance of contract is 0, and contract value is distributed");
     });
 
 })

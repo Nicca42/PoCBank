@@ -46,12 +46,18 @@ contract Bank {
         _;
     }
 
+    /**
+      * @dev allows for the creation of a bank
+      */
     constructor()
         public
     {
         owner = msg.sender;
     }
 
+    /**
+      * @dev allows the bank owner to get the balance of the bank
+      */
     function getBalance()
         public
         view
@@ -75,6 +81,10 @@ contract Bank {
         return userWallets[_userWallet].bankAccount;
     }
 
+    /**
+      * @param _groupNumber : the groups ID / number 
+      * @dev returns all the owners
+      */
     function getTrustGroupDetails(uint _groupNumber)
         public
         view
@@ -84,6 +94,10 @@ contract Bank {
         return trustGroups[_groupNumber].owners;
     }
 
+    /**
+      * @param _groupNumber : the groups ID / number 
+      * @dev returns the address of the account
+      */
     function getTrustAccountAddress(uint _groupNumber)
         public
         view
@@ -91,28 +105,6 @@ contract Bank {
         returns(address)
     {
         return trustGroups[_groupNumber].bankAccount;
-    }
-
-    /**
-        @param _toLock : The address of the user to lock.
-        @dev Allows the bank to lock a user durning a transaction. 
-    */
-    function lockAddress(address _toLock)
-        public
-        isOwner()
-    {
-        address usersAccountAddress = userWallets[_toLock].bankAccount;
-        AccessAccount usersAccount = AccessAccount(usersAccountAddress);
-        usersAccount.freeze();
-    }
-
-    function unlockAddress(address _toUnlock)
-        public
-        isOwner()
-    {
-        address usersAccountAddress = userWallets[_toUnlock].bankAccount;
-        AccessAccount usersAccount = AccessAccount(usersAccountAddress);
-        usersAccount.defrost();
     }
 
     /**
@@ -171,6 +163,10 @@ contract Bank {
         return newTrustAccountAddress;
     }
 
+    /**
+        @param _owner : The address of the user to lock.
+        @dev Allows the bank to lock a user
+    */
     function lockAccount(address _owner)
         public
         isOwner()
@@ -180,6 +176,10 @@ contract Bank {
         account.freeze();
     }
 
+    /**
+      * @param _owner : the address of the owner to unlock
+      * @dev Allows the bank to unlock a user
+      */
     function unlockAccount(address _owner)
         public
         isOwner()
@@ -189,6 +189,11 @@ contract Bank {
         account.defrost();
     }
 
+    /**
+      * @param _trustGroupNumber : the turst groups number
+      * @dev Allows the bank to lock trust accounts (as to lock their 
+      *     account a different mapping must be accessed)
+      */
     function lockTrustAccount(uint _trustGroupNumber)
         public
         isOwner()
@@ -198,6 +203,10 @@ contract Bank {
         account.freeze();
     }
 
+    /**
+      * @param _trustGroupNumber : the trust groups number
+      * @dev Allows the bank to unlock trust accounts
+      */
     function unlockTrustAccount(uint _trustGroupNumber)
         public
         isOwner()
@@ -229,19 +238,7 @@ contract Bank {
         userWallets[_oldAddress].typeOfAccount;
     }
 
-    /**
-    struct AccountDetails {
-        address owner;
-        address bankAccount;
-        AccessAccount.AccountType typeOfAccount;
-    }
-    //the data stored for trust accounts
-    struct TrustGroupDetails {
-        address[] owners;
-        address bankAccount;
-    }
-     */
-
+    event LogProgress(string _desc, uint _value);
     /**
       * @param _oldAddress : the old user wallet address
       * @param _newAddress : the new user wallet address
@@ -254,10 +251,18 @@ contract Bank {
     {
         address accountAddress = trustGroups[_groupNumber].bankAccount;
         TrustAccount accountContract = TrustAccount(accountAddress);
-        address[] memory newOwners = accountContract.changeOwner(_oldAddress, _newAddress);
-        trustGroups[_groupNumber].owners = newOwners;
+        uint ballotID = accountContract.requestChangeOwnerAddress(_oldAddress, _newAddress);
+        emit LogProgress("Bank After creating before voting", ballotID);
+        accountContract.voteFor(ballotID, true);
+        emit LogProgress("Bank after voting", ballotID);
+        accountContract.changeOwnerAddress(ballotID);
+        emit LogProgress("Bank after changing owner", ballotID);
     }
 
+    /**
+      * @param _newLimit : the new limit 
+      * @dev changes the limit for all accounts created after this point
+      */
     function newAccountLimitModifier(uint _newLimit)
         public 
         isOwner()
@@ -265,6 +270,14 @@ contract Bank {
         limit = _newLimit;
     }
 
+    /**
+      * @param _account : the accounts address
+      * @param _newLimit : the new suggested limit
+      * @dev bank can change the limit of exisiting accounts with this
+      *     function. 
+      * @notice this function checks that the new limit is not smaller than
+      *     the balance
+      */
     function accountLimitModifier(address _account, uint _newLimit)
         public
         isOwner()
@@ -275,6 +288,10 @@ contract Bank {
         account.setLimit(_newLimit);
     }
      
+    /**
+      * @param _account : the address of the account to be dissolved
+      * @dev 
+      */
     function dissolveAccount(address _account)
         public
         isOwner()
@@ -282,4 +299,5 @@ contract Bank {
         AccessAccount account = AccessAccount(_account);
         account.dissolve();
     }
+
 }
