@@ -39,8 +39,11 @@ All files           | 89.78    | 65.31    | 89.09    | 91.14    |               
 --------------------|----------|----------|----------|----------|----------------|
 ```
 
+## Design Decisions
+This project uses mutexes, separation of concerns, modular testing, and optimization by using `solc` compiler. 
+
 ## Planning
-This project uses inheritance. Initially it was not going to and I was going to have each contract as a seprate entity, but using the vairous functions from the bank contract without a parent class where the functions whould be unified prooved inefficient.
+This project uses inheritance. Initially it was not going to and I was going to have each contract as a separate entity, but using the various functions from the bank contract without a parent class where the functions are be unified proved inefficient.
 <p align="center">  
   <img
    src="https://github.com/Nicca42/PoCBank/blob/master/pocbank/img/Inheritance.JPG" alt="Inheritance"/>
@@ -48,3 +51,6 @@ This project uses inheritance. Initially it was not going to and I was going to 
 </p>
 
 Additional images relating to planning can be found within the img directory in the repo.
+
+
+
