@@ -27,7 +27,7 @@ The block below shows the code test coverage. It comprehensively covers all core
 
 ```
 --------------------|----------|----------|----------|----------|----------------|
-File 	              | % Stmts  | % Branch | % Funcs  | % Lines  |Uncovered Lines |
+File                | % Stmts  | % Branch | % Funcs  | % Lines  |Uncovered Lines |
 --------------------|----------|----------|----------|----------|----------------|
 contracts/          | 89.78    | 65.31    | 89.09    | 91.14    |                |
 AccessAccount.sol   | 94.29    | 70       | 88.24    | 94.87    | 80,234         |
