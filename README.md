@@ -9,6 +9,8 @@ npm install
 truffle compile
 truffle test
 ```
+If there is an out of gas error, increase the gas limit by adding an extra 0 at the end.
+
 ## Contracts
 The project consists of four contracts: AccessAccount, DelayAccount, Trust(shared access) account and the bank. The access account is the parent contract for the other accounts. The access account contains all base functionality that is then overridden in the child contracts as and when needed. All accounts are subject to an account limit, which is determined by the bank on creation. This can be changed later by the bank.
 
@@ -25,7 +27,7 @@ The block below shows the code test coverage. It comprehensively covers all core
 
 ```
 --------------------|----------|----------|----------|----------|----------------|
-File 	            | % Stmts  | % Branch | % Funcs  | % Lines  |Uncovered Lines |
+File 	              | % Stmts  | % Branch | % Funcs  | % Lines  |Uncovered Lines |
 --------------------|----------|----------|----------|----------|----------------|
 contracts/          | 89.78    | 65.31    | 89.09    | 91.14    |                |
 AccessAccount.sol   | 94.29    | 70       | 88.24    | 94.87    | 80,234         |
@@ -37,3 +39,12 @@ All files           | 89.78    | 65.31    | 89.09    | 91.14    |               
 --------------------|----------|----------|----------|----------|----------------|
 ```
 
+## Planning
+This project uses inheritance. Initially it was not going to and I was going to have each contract as a seprate entity, but using the vairous functions from the bank contract without a parent class where the functions whould be unified prooved inefficient.
+<p align="center">  
+  <img
+   src="https://github.com/Nicca42/PoCBank/blob/master/pocbank/img/Inheritance.JPG" alt="Inheritance"/>
+  <br>
+</p>
+
+Additional images relating to planning can be found within the img directory in the repo.
